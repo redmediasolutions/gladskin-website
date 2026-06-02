@@ -3,23 +3,57 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ProductCard from '../../components/ProductCard.astro';
-import { getProducts } from '../../data/products.ts';
+import { getProducts, categories } from '../../data/products.ts';
 
 const products = await getProducts();
+const allCategories = ['All', ...categories];
 ---
 
 <BaseLayout title="Collection | Gladskin">
   <Header />
-  <main style="padding-top:8rem; min-height:100vh; background:var(--surface);">
-    <div style="max-width:80rem; margin:0 auto; padding:4rem 3rem;">
-      <div style="text-align:center; margin-bottom:5rem;">
-        <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">All Products</span>
-        <h1 class="font-headline" style="font-size:clamp(2.5rem,5vw,4rem); color:var(--on-surface); margin:0;">The Full Collection</h1>
+  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface);">
+    <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem) 2rem;">
+
+      <!-- Header + Search row -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding-top:1.5rem; margin-bottom:1rem;">
+        <div>
+          <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.25em; text-transform:uppercase; font-size:0.85rem; font-weight:800; display:block; margin-bottom:0.3rem;">All Products</span>
+          <h1 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.5rem); color:var(--on-surface); margin:0;">The Full Collection</h1>
+        </div>
+        <a href="/search" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 1.25rem; border:1.5px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); text-decoration:none; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)';" onmouseout="this.style.borderColor='var(--outline-variant)'; this.style.color='var(--on-surface-variant)';">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">search</span>Search
+        </a>
       </div>
-      <div class="products-grid">
-        {products.map((product, i) => (
-          <ProductCard product={product} delay={i * 150} />
+
+      <!-- Category filter tabs -->
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem;">
+        {allCategories.map(cat => (
+          <button
+            class="cat-filter"
+            data-cat={cat}
+            style={`padding:0.5rem 1.1rem; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:1.5px solid ${cat === 'All' ? 'var(--primary)' : 'var(--outline-variant)'}; background:${cat === 'All' ? 'var(--primary)' : 'transparent'}; color:${cat === 'All' ? '#fff' : 'var(--on-surface-variant)'};`}
+          >
+            {cat}
+          </button>
         ))}
+      </div>
+
+      <!-- Result count -->
+      <p id="filter-count" style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); margin:0 0 1.5rem;">{products.length} products</p>
+
+      <!-- Grid -->
+      <div class="products-grid" id="products-grid">
+        {products.map((product, i) => (
+          <div class="product-item reveal-on-scroll" data-category={product.category} style={`transition-delay:${i*100}ms;`}>
+            <ProductCard product={product} delay={0} />
+          </div>
+        ))}
+      </div>
+
+      <!-- No results -->
+      <div id="no-cat-results" style="display:none; text-align:center; padding:4rem 0;">
+        <span class="material-symbols-outlined" style="font-size:3rem; color:var(--outline-variant); display:block; margin-bottom:1rem;">inventory_2</span>
+        <p style="font-family:'Manrope',sans-serif; color:var(--on-surface-variant);">No products in this category yet.</p>
       </div>
     </div>
   </main>
@@ -27,14 +61,52 @@ const products = await getProducts();
 </BaseLayout>
 
 <style>
-  .products-grid { display:grid; grid-template-columns:1fr; gap:3rem; }
-  @media (min-width:640px) { .products-grid { grid-template-columns: repeat(2,1fr); } }
-  @media (min-width:1024px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
+  .products-grid { display:grid; grid-template-columns:1fr; gap:2.5rem; }
+  @media (min-width:640px)  { .products-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (min-width:1280px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
+
+  .product-item { transition: opacity 0.3s, transform 0.3s; }
+  .product-item.hidden { display: none; }
 </style>
 
 <script>
+  const buttons   = document.querySelectorAll('.cat-filter');
+  const items     = document.querySelectorAll('.product-item');
+  const countEl   = document.getElementById('filter-count')!;
+  const noResults = document.getElementById('no-cat-results')!;
+  const grid      = document.getElementById('products-grid')!;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = (btn as HTMLElement).dataset.cat!;
+
+      // Style active button
+      buttons.forEach(b => {
+        const el = b as HTMLElement;
+        const isActive = el.dataset.cat === cat;
+        el.style.background    = isActive ? 'var(--primary)' : 'transparent';
+        el.style.color         = isActive ? '#fff' : 'var(--on-surface-variant)';
+        el.style.borderColor   = isActive ? 'var(--primary)' : 'var(--outline-variant)';
+      });
+
+      // Filter items
+      let visible = 0;
+      items.forEach(item => {
+        const el = item as HTMLElement;
+        const match = cat === 'All' || el.dataset.category === cat;
+        el.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+
+      countEl.textContent = `${visible} product${visible !== 1 ? 's' : ''}${cat !== 'All' ? ` in ${cat}` : ''}`;
+      noResults.style.display = visible === 0 ? 'block' : 'none';
+      grid.style.display      = visible === 0 ? 'none' : '';
+    });
+  });
+
+  // Scroll reveal
   const observer = new IntersectionObserver(
-    (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); }),
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); }),
     { threshold: 0.1 }
   );
   document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));

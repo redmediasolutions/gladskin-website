@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Profile | Gladskin" description="Your Gladskin member profile">
+  <Header />
+
+  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface); padding-bottom:5rem;">
+    <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem) 2rem;">
+
+      <!-- ── Profile Hero ── -->
+      <div class="profile-hero" style="display:flex; align-items:center; gap:2.5rem; padding:2rem 0 2.5rem;">
+        <div style="width:6rem; height:6rem; border-radius:9999px; overflow:hidden; border:3px solid var(--primary); flex-shrink:0;">
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy6TUydg_UOX33vBqvljADPecjE0mOeZiaH9vHgcTmiyzcVp3qV68mxPyliuXw9CizaQvukBXyvnIDwfVk4-Prux5Dvq8W6_WXMqE2Les4Hwd_ny0ifgT_tY7iuWS_nQyVMvwGd3SUVHZTAl439oeQXlR46COOMq4gJJ4U95iMxdW8a5QUiRts-hGnqUzCD_aitTD1gcD0JO3n4ZIJN-E1X59B8lclzO7kK75Bh_G8pfbvYJPVBzn0JZcF9Gjhi470NJSislY_qWg"
+            alt="Elena Rossi"
+            style="width:100%; height:100%; object-fit:cover;"
+          />
+        </div>
+        <div>
+          <h1 style="font-family:'Noto Serif',serif; font-size:clamp(1.75rem,4vw,2.75rem); font-weight:400; color:var(--on-surface); margin:0 0 0.75rem; line-height:1.1;">Elena Rossi</h1>
+          <div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-container); border-radius:9999px; padding:0.45rem 1rem;">
+            <span class="material-symbols-outlined" style="font-size:1rem; color:var(--secondary);">currency_exchange</span>
+            <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; color:var(--on-surface-variant); text-transform:uppercase; letter-spacing:0.12em;">Points</span>
+            <span style="font-family:'Manrope',sans-serif; font-size:0.875rem; font-weight:800; color:var(--on-surface);">2,450</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Row 1: 3 cards ── -->
+      <div class="cards-row-1" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+
+        <!-- Order History -->
+        <a href="/orders" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1.25rem; padding:1.75rem; min-height:12rem; transition:box-shadow 0.2s,border-color 0.2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(111,5,98,0.08)';this.style.borderColor='var(--primary)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='var(--outline-variant)'">
+          <div style="width:2.75rem; height:2.75rem; background:var(--surface-container); border-radius:0.875rem; display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1.375rem; color:var(--primary);">receipt_long</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:var(--on-surface); margin-bottom:0.25rem;">Order History</div>
+            <div id="orders-count-label" style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:var(--on-surface-variant);">0 Orders</div>
+          </div>
+          <span class="material-symbols-outlined" style="font-size:1.25rem; color:var(--outline); align-self:flex-end;">chevron_right</span>
+        </a>
+
+        <!-- Saved Items -->
+        <a href="/saved" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1.25rem; padding:1.75rem; min-height:12rem; transition:box-shadow 0.2s,border-color 0.2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(111,5,98,0.08)';this.style.borderColor='var(--primary)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='var(--outline-variant)'">
+          <div style="width:2.75rem; height:2.75rem; background:var(--surface-container); border-radius:0.875rem; display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1.375rem; color:var(--secondary);">favorite</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:var(--on-surface); margin-bottom:0.25rem;">Saved Items</div>
+            <div id="wishlist-count-label" style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:var(--on-surface-variant);">0 Items</div>
+          </div>
+          <span class="material-symbols-outlined" style="font-size:1.25rem; color:var(--outline); align-self:flex-end;">chevron_right</span>
+        </a>
+
+        <!-- Loyalty Points — featured dark card -->
+        <a href="/orders" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; background:var(--primary); border-radius:1.25rem; padding:1.75rem; min-height:12rem; position:relative; overflow:hidden; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.92'" onmouseout="this.style.opacity='1'">
+          <div style="position:absolute; right:-1rem; bottom:-1rem; opacity:0.12;">
+            <span class="material-symbols-outlined" style="font-size:8rem; color:#fff;">wallet</span>
+          </div>
+          <div style="width:2.75rem; height:2.75rem; background:rgba(255,255,255,0.15); border-radius:0.875rem; display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1.375rem; color:#fff;">currency_exchange</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:#fff; margin-bottom:0.25rem;">Loyalty Points</div>
+            <div style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:rgba(255,255,255,0.75);">2,450 points available</div>
+          </div>
+          <span class="material-symbols-outlined" style="font-size:1.25rem; color:rgba(255,255,255,0.8); align-self:flex-end; transform:rotate(-45deg);">arrow_forward</span>
+        </a>
+      </div>
+
+      <!-- ── Row 2: 2 cards ── -->
+      <div class="cards-row-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
+
+        <!-- Addresses -->
+        <a href="/addresses" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1.25rem; padding:1.75rem; min-height:9rem; transition:box-shadow 0.2s,border-color 0.2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(111,5,98,0.08)';this.style.borderColor='var(--primary)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='var(--outline-variant)'">
+          <div style="width:2.75rem; height:2.75rem; background:var(--surface-container); border-radius:0.875rem; display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1.375rem; color:var(--tertiary);">location_on</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:var(--on-surface); margin-bottom:0.25rem;">My Addresses</div>
+            <div id="addresses-count-label" style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:var(--on-surface-variant);">0 Saved</div>
+          </div>
+        </a>
+
+        <!-- Browse Collection -->
+        <a href="/collection" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1.25rem; padding:1.75rem; min-height:9rem; transition:box-shadow 0.2s,border-color 0.2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(111,5,98,0.08)';this.style.borderColor='var(--primary)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='var(--outline-variant)'">
+          <div style="width:2.75rem; height:2.75rem; background:var(--surface-container); border-radius:0.875rem; display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1.375rem; color:var(--primary);">spa</span>
+          </div>
+          <div>
+            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:var(--on-surface); margin-bottom:0.25rem;">Browse Collection</div>
+            <div style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:var(--on-surface-variant);">Explore all products</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Bottom nav — mobile only -->
+  <nav class="mobile-bottom-nav" style="position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--outline-variant); display:flex; justify-content:space-around; align-items:center; padding:0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom)); z-index:50;">
+    <a href="/" style="display:flex; flex-direction:column; align-items:center; gap:0.2rem; text-decoration:none; color:var(--on-surface-variant);">
+      <span class="material-symbols-outlined" style="font-size:1.5rem;">home</span>
+      <span style="font-family:'Manrope',sans-serif; font-size:0.6rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">Shop</span>
+    </a>
+    <a href="/collection" style="display:flex; flex-direction:column; align-items:center; gap:0.2rem; text-decoration:none; color:var(--on-surface-variant);">
+      <span class="material-symbols-outlined" style="font-size:1.5rem;">grid_view</span>
+      <span style="font-family:'Manrope',sans-serif; font-size:0.6rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">Discover</span>
+    </a>
+    <a href="/saved" style="display:flex; flex-direction:column; align-items:center; gap:0.2rem; text-decoration:none; color:var(--on-surface-variant);">
+      <span class="material-symbols-outlined" style="font-size:1.5rem;">favorite</span>
+      <span style="font-family:'Manrope',sans-serif; font-size:0.6rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;">Wishlist</span>
+    </a>
+    <a href="/profile" style="display:flex; flex-direction:column; align-items:center; gap:0.2rem; text-decoration:none; color:var(--primary);">
+      <span class="material-symbols-outlined" style="font-size:1.5rem; font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">person</span>
+      <span style="font-family:'Manrope',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--primary);">Profile</span>
+    </a>
+  </nav>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .mobile-bottom-nav { display: none; }
+
+  @media (max-width: 767px) {
+    .mobile-bottom-nav { display: flex; }
+    .profile-hero { flex-direction: column; align-items: center; text-align: center; }
+    .cards-row-1  { grid-template-columns: 1fr !important; }
+    .cards-row-2  { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 1023px) and (min-width: 768px) {
+    .cards-row-1 { grid-template-columns: 1fr 1fr !important; }
+  }
+</style>
+
+<script>
+  try {
+    const orders   = JSON.parse(localStorage.getItem('gladskin_orders')   || '[]');
+    const wishlist = JSON.parse(localStorage.getItem('gladskin_wishlist') || '[]');
+    const addrs    = JSON.parse(localStorage.getItem('gladskin_addresses')|| '[]');
+
+    const o = document.getElementById('orders-count-label');
+    const w = document.getElementById('wishlist-count-label');
+    const a = document.getElementById('addresses-count-label');
+
+    if (o) o.textContent = `${orders.length} Order${orders.length !== 1 ? 's' : ''}`;
+    if (w) w.textContent = `${wishlist.length} Item${wishlist.length !== 1 ? 's' : ''}`;
+    if (a) a.textContent = `${addrs.length} Location${addrs.length !== 1 ? 's' : ''} saved`;
+  } catch {}
+</script>

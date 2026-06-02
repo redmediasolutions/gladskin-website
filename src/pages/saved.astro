@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Wishlist | Gladskin" description="Your saved Gladskin products">
+  <Header />
+  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface);">
+    <div style="max-width:72rem; margin:0 auto; padding:1.5rem clamp(1.25rem,4vw,3rem) 3rem;">
+
+      <h1 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.5rem); color:var(--on-surface); margin:0 0 0.25rem;">Wishlist</h1>
+      <p style="font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant); margin:0 0 2rem;">
+        <span id="wishlist-count">0</span> saved items
+      </p>
+
+      <!-- Empty state -->
+      <div id="wishlist-empty" style="display:none; text-align:center; padding:5rem 0;">
+        <span class="material-symbols-outlined" style="font-size:4rem; color:var(--outline-variant); display:block; margin-bottom:1.5rem;">favorite</span>
+        <p class="font-body" style="color:var(--on-surface-variant); font-size:1.125rem; margin:0 0 2rem;">Your wishlist is empty.</p>
+        <a href="/collection" style="display:inline-block; padding:1rem 2.5rem; background:var(--primary); color:var(--on-primary); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none;">
+          Explore Collection
+        </a>
+      </div>
+
+      <!-- Wishlist items -->
+      <div id="wishlist-items" style="display:flex; flex-direction:column; gap:1rem;"></div>
+
+      <!-- Toast -->
+      <div id="toast" style="position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(4rem); background:var(--on-surface); color:var(--surface); padding:0.75rem 1.5rem; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:600; opacity:0; transition:all 0.3s; z-index:100; white-space:nowrap;"></div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script>
+  const WISHLIST_KEY = 'gladskin_wishlist';
+  const CART_KEY     = 'gladskin_cart';
+
+  function getWishlist() {
+    try { return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'); } catch { return []; }
+  }
+  function saveWishlist(items: any[]) {
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
+  }
+  function getCart() {
+    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
+  }
+  function saveCart(items: any[]) {
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
+  }
+
+  function showToast(msg: string) {
+    const t = document.getElementById('toast')!;
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(4rem)';
+    }, 2500);
+  }
+
+  function moveToBag(item: any) {
+    const cart = getCart();
+    const existing = cart.find((c: any) => c.id === item.id);
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      cart.push({ ...item, quantity: 1 });
+    }
+    saveCart(cart);
+
+    // Update cart count in header
+    const countEl = document.getElementById('cart-count');
+    if (countEl) {
+      const total = cart.reduce((s: number, c: any) => s + (c.quantity || 1), 0);
+      countEl.textContent = String(total);
+    }
+
+    // Remove from wishlist
+    removeFromWishlist(item.id, false);
+    showToast('Moved to bag');
+  }
+
+  function removeFromWishlist(id: string, toast = true) {
+    const updated = getWishlist().filter((i: any) => i.id !== id);
+    saveWishlist(updated);
+    if (toast) showToast('Removed from wishlist');
+    renderWishlist();
+  }
+
+  function renderWishlist() {
+    const items = getWishlist();
+    const countEl  = document.getElementById('wishlist-count')!;
+    const emptyEl  = document.getElementById('wishlist-empty')!;
+    const itemsEl  = document.getElementById('wishlist-items')!;
+
+    countEl.textContent = String(items.length);
+
+    if (items.length === 0) {
+      emptyEl.style.display = 'block';
+      itemsEl.innerHTML = '';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    itemsEl.innerHTML = items.map((item: any) => `
+      <div style="display:grid; grid-template-columns:6rem 1fr; gap:1.25rem; align-items:center; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.25rem;" class="wishlist-row">
+        <a href="/products/${item.slug}" style="display:block; border-radius:0.5rem; overflow:hidden; aspect-ratio:3/4;">
+          <img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" />
+        </a>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div>
+            <span style="font-family:'Manrope',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--on-surface-variant);">${item.category}</span>
+            <h3 style="font-family:'Noto Serif',serif; font-size:1.1rem; font-weight:400; color:var(--on-surface); margin:0.2rem 0 0;">${item.name}</h3>
+            <p style="font-family:'Manrope',sans-serif; font-size:1rem; color:var(--primary); font-weight:600; margin:0.25rem 0 0;">₹${item.price.toFixed(2)}</p>
+          </div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button
+              onclick="window.__moveToBag('${item.id}')"
+              style="padding:0.6rem 1.25rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:#fff; border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">shopping_bag</span>
+              Move to Bag
+            </button>
+            <button
+              onclick="window.__removeWishlist('${item.id}')"
+              style="padding:0.6rem 1rem; background:none; border:1px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:600; color:var(--on-surface-variant); cursor:pointer; display:flex; align-items:center; gap:0.3rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Expose to inline onclick handlers
+  (window as any).__moveToBag      = (id: string) => moveToBag(getWishlist().find((i: any) => i.id === id));
+  (window as any).__removeWishlist = (id: string) => removeFromWishlist(id);
+
+  renderWishlist();
+</script>
+
+<style>
+  @media (min-width: 640px) {
+    .wishlist-row { grid-template-columns: 8rem 1fr !important; }
+  }
+</style>

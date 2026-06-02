@@ -1,3 +1,9 @@
+export interface ProductHighlight {
+  icon: string;
+  title: string;
+  description: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -7,6 +13,12 @@ export interface Product {
   image: string;
   imageAlt: string;
   slug: string;
+  description?: string;
+  composition?: string;
+  howItWorks?: string;
+  sideEffects?: string;
+  highlights?: ProductHighlight[];
+  inStock?: boolean;
 }
 
 export interface NavItem {

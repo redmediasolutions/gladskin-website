@@ -110,3 +110,56 @@ body {
 
 /* ─── Utility overrides ─── */
 .no-line { border: none !important; }
+
+/* ─── Global Responsive ─── */
+@media (max-width: 767px) {
+  /* Narrow all section containers on mobile */
+  [style*="padding:0 3rem"],
+  [style*="padding: 0 3rem"] {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  [style*="padding:0 3rem 2rem"] {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  /* Reduce big vertical section gaps */
+  [style*="padding:8rem 0"]  { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+  [style*="padding:10rem 0"] { padding-top: 5rem !important; padding-bottom: 5rem !important; }
+  [style*="padding:6rem 3rem"] { padding: 3rem 1.25rem !important; }
+
+  /* Profile page inner padding */
+  [style*="padding:0 3rem 2rem"] {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  /* Footer columns */
+  .footer-grid {
+    padding: 1.25rem !important;
+  }
+}
+
+/* ─── Gladskin logo shimmer (header + footer) ─── */
+.logo-shimmer,
+.footer-logo-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--primary)   0%,
+    var(--secondary) 30%,
+    #fface7          50%,
+    var(--secondary) 70%,
+    var(--primary)   100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gladskinShimmer 3.5s ease-in-out infinite;
+}
+
+@keyframes gladskinShimmer {
+  0%, 100% { background-position: 0%   0; }
+  50%       { background-position: 100% 0; }
+}

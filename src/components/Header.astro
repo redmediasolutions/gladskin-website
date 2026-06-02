@@ -1,88 +1,261 @@
 ---
+const pathname = Astro.url.pathname;
 const navLinks = [
-  { label: 'Atelier', href: '/', active: true },
-  { label: 'Collection', href: '/collection' },
-  { label: 'Ritual', href: '/ritual' },
+  { label: 'Atelier',    href: '/',           active: pathname === '/' },
+  { label: 'Collection', href: '/collection', active: pathname.startsWith('/collection') || pathname.startsWith('/products') },
+  { label: 'Ritual',     href: '/ritual',     active: pathname === '/ritual' },
 ];
+const profileActive = pathname === '/profile';
 ---
 
-<header
-  id="main-header"
-  class="fixed top-0 w-full z-50 transition-all duration-300"
-  style="background: rgba(252,249,249,0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 1.5rem 3rem;"
->
-  <div style="display:flex; align-items:center; justify-content:space-between; width:100%; max-width:80rem; margin:0 auto;">
-    <!-- Left Nav -->
-    <nav style="display:none;" class="desktop-nav" aria-label="Primary">
-      {navLinks.map(link => (
-        <a
-          href={link.href}
-          style={`margin-right:2.5rem; font-family:'Manrope',sans-serif; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:600; text-decoration:none; transition:color 0.3s; color:${link.active ? 'var(--primary)' : 'var(--on-surface-variant)'}; ${link.active ? 'border-bottom:2px solid var(--primary); padding-bottom:4px;' : ''}`}
-        >
-          {link.label}
-        </a>
-      ))}
-    </nav>
+<header id="main-header" class="main-header">
+  <!-- Shimmer border line -->
+  <div class="header-shimmer-line"></div>
 
-    <!-- Logo -->
-    <div style="font-family:'Noto Serif',serif; font-size:1.5rem; font-weight:300; letter-spacing:0.3em; color:var(--primary); text-transform:uppercase; text-align:center; flex:1;">
-      Gladskin
+  <!-- Main row -->
+  <div class="header-inner">
+
+    <!-- Left: hamburger (mobile) / nav links (desktop) -->
+    <div class="header-left">
+      <button id="mobile-menu-btn" class="hamburger-btn" aria-label="Toggle menu">
+        <span class="material-symbols-outlined" id="hamburger-icon">menu</span>
+      </button>
+      <nav class="desktop-nav" aria-label="Primary">
+        {navLinks.map(link => (
+          <a href={link.href} class={`nav-link ${link.active ? 'active' : ''}`}>
+            {link.label}
+          </a>
+        ))}
+      </nav>
     </div>
 
-    <!-- Right Actions -->
-    <div style="display:flex; align-items:center; gap:1.5rem;">
-      <a href="/profile" style="display:none; font-family:'Manrope',sans-serif; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:600; color:var(--on-surface-variant); text-decoration:none;" class="desktop-link">
+    <!-- Logo — absolutely centered -->
+    <a href="/" class="header-logo logo-shimmer">Gladskin</a>
+
+    <!-- Right: profile (desktop) + cart -->
+    <div class="header-right">
+      <a href="/profile" class={`nav-link desktop-link ${profileActive ? 'active' : ''}`}>
         Profile
+      </a>
+      <a href="/search" aria-label="Search" style="color:var(--primary); display:flex; align-items:center;" class="desktop-link">
+        <span class="material-symbols-outlined" style="font-size:1.4rem;">search</span>
       </a>
       <a href="/cart" style="position:relative;" aria-label="Shopping bag">
         <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.5rem;">shopping_bag</span>
         <span id="cart-count" style="position:absolute; top:-4px; right:-4px; background:var(--secondary); color:white; font-size:10px; width:16px; height:16px; border-radius:9999px; display:flex; align-items:center; justify-content:center;">0</span>
       </a>
-      <button id="mobile-menu-btn" aria-label="Open menu" style="background:none; border:none; cursor:pointer; display:block;" class="mobile-only">
-        <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.5rem;">menu</span>
-      </button>
     </div>
   </div>
 
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" style="display:none; flex-direction:column; gap:1rem; padding:1.5rem 0 0.5rem; border-top:1px solid var(--outline-variant); margin-top:1rem;">
+  <!-- Mobile dropdown menu -->
+  <div id="mobile-menu" class="mobile-menu">
     {navLinks.map(link => (
-      <a href={link.href} style="font-family:'Manrope',sans-serif; font-size:0.875rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); text-decoration:none; font-weight:600;">
+      <a href={link.href} class={`mobile-nav-link ${link.active ? 'active' : ''}`}>
         {link.label}
       </a>
     ))}
-    <a href="/profile" style="font-family:'Manrope',sans-serif; font-size:0.875rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); text-decoration:none; font-weight:600;">Profile</a>
+    <a href="/profile" class={`mobile-nav-link ${profileActive ? 'active' : ''}`}>Profile</a>
   </div>
 </header>
 
 <style>
+  /* ── Header shell ── */
+  .main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(252,249,249,0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    padding: 0 1.25rem;
+    transition: box-shadow 0.3s, background 0.3s;
+  }
+
+  /* ── Main row ── */
+  .header-inner {
+    height: 3.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    max-width: 80rem;
+    margin: 0 auto;
+  }
+
+  /* ── Logo absolutely centered ── */
+  .header-logo {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  /* ── Left / Right slots ── */
+  .header-left,
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1;
+  }
+
+  /* ── Hamburger button ── */
+  .hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    color: var(--primary);
+  }
+  .hamburger-btn .material-symbols-outlined { font-size: 1.5rem; }
+
+  /* ── Desktop nav ── */
+  .desktop-nav  { display: none; gap: 0; }
+  .desktop-link { display: none; }
+
+  /* ── Nav link base ── */
+  .nav-link {
+    position: relative;
+    margin-right: 2.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--on-surface-variant);
+    transition: color 0.3s;
+    padding-bottom: 6px;
+  }
+  .nav-link:hover { color: var(--primary); }
+  .nav-link.active { color: var(--primary); }
+
+  /* ── Magic underline ── */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px; width: 0;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 40%, #fface7 65%, var(--secondary) 80%, var(--primary) 100%);
+    background-size: 200% 100%;
+    box-shadow: 0 0 6px rgba(111,5,98,0.7), 0 0 14px rgba(183,11,104,0.5), 0 0 28px rgba(255,172,231,0.4);
+  }
+  .nav-link.active::after {
+    animation: magicExpand 0.65s cubic-bezier(0.22,1,0.36,1) forwards,
+               shimmerSlide 2s linear 0.65s infinite;
+  }
+  @keyframes magicExpand {
+    0%   { width:0%;   opacity:0; background-position:100% 0; }
+    20%  { opacity:1; }
+    100% { width:100%; opacity:1; background-position:0% 0; }
+  }
+  @keyframes shimmerSlide {
+    0%,100% { background-position:0% 0; }
+    50%     { background-position:100% 0; }
+  }
+
+  /* ── Mobile dropdown ── */
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    max-width: 80rem;
+    margin: 0 auto;
+    border-top: 1px solid var(--outline-variant);
+    padding: 0.5rem 0 1rem;
+  }
+  .mobile-menu.open { display: flex; }
+
+  .mobile-nav-link {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(215,192,205,0.2);
+    transition: color 0.2s, padding-left 0.2s;
+  }
+  .mobile-nav-link:hover { color: var(--primary); padding-left: 4px; }
+  .mobile-nav-link.active { color: var(--primary); }
+
+  /* ── Shimmer bottom line ── */
+  .header-shimmer-line {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, rgba(133,114,125,0.3) 15%, var(--primary) 40%, var(--secondary) 52%, #fface7 58%, var(--secondary) 65%, var(--primary) 75%, rgba(133,114,125,0.3) 88%, transparent 100%);
+    background-size: 200% 100%;
+    animation: headerShimmer 4s ease-in-out infinite;
+  }
+  @keyframes headerShimmer {
+    0%,100% { background-position:0% 0;   opacity:0.7; }
+    50%     { background-position:100% 0; opacity:1; }
+  }
+
+  /* ── Desktop overrides ── */
   @media (min-width: 768px) {
-    .desktop-nav { display: flex !important; }
-    .desktop-link { display: block !important; }
-    .mobile-only { display: none !important; }
+    .main-header  { padding: 0 3rem; }
+    .desktop-nav  { display: flex; }
+    .desktop-link { display: block; }
+    .hamburger-btn { display: none; }
+    .mobile-menu  { display: none !important; }
   }
 </style>
 
 <script>
-  // Header scroll effect
-  const header = document.getElementById('main-header');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      header!.style.padding = '0.75rem 3rem';
-      header!.style.boxShadow = '0 1px 12px rgba(0,0,0,0.06)';
-      header!.style.background = 'rgba(252,249,249,0.95)';
-    } else {
-      header!.style.padding = '1.5rem 3rem';
-      header!.style.boxShadow = 'none';
-      header!.style.background = 'rgba(252,249,249,0.7)';
-    }
+  const header  = document.getElementById('main-header')!;
+  const btn     = document.getElementById('mobile-menu-btn')!;
+  const menu    = document.getElementById('mobile-menu')!;
+  const icon    = document.getElementById('hamburger-icon')!;
+
+  /* Hamburger toggle — swaps icon and opens/closes menu */
+  btn.addEventListener('click', () => {
+    const isOpen = menu.classList.contains('open');
+    menu.classList.toggle('open');
+    icon.textContent = isOpen ? 'menu' : 'close';
   });
 
-  // Mobile menu toggle
-  const btn = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  btn?.addEventListener('click', () => {
-    const isOpen = menu!.style.display === 'flex';
-    menu!.style.display = isOpen ? 'none' : 'flex';
+  /* Close menu on nav link click */
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      menu.classList.remove('open');
+      icon.textContent = 'menu';
+    });
+  });
+
+  /* Seed cart count from localStorage on every page load */
+  function refreshCartCount() {
+    try {
+      const cart = JSON.parse(localStorage.getItem('gladskin_cart') || '[]');
+      const total = cart.reduce((s: number, c: any) => s + (c.quantity || 1), 0);
+      const el = document.getElementById('cart-count');
+      if (el) el.textContent = String(total);
+    } catch {}
+  }
+  refreshCartCount();
+
+  /* Scroll effect */
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      header.style.boxShadow = '0 2px 20px rgba(111,5,98,0.08)';
+      header.style.background = 'rgba(252,249,249,0.98)';
+    } else {
+      header.style.boxShadow = 'none';
+      header.style.background = 'rgba(252,249,249,0.95)';
+    }
   });
 </script>

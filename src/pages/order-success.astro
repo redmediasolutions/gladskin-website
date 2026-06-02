@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+---
+
+<BaseLayout title="Order Placed | Gladskin">
+  <Header />
+  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface); display:flex; align-items:center; justify-content:center; padding-bottom:3rem;">
+    <div style="max-width:32rem; width:100%; margin:0 auto; padding:2rem clamp(1.25rem,4vw,2rem); text-align:center;">
+
+      <!-- Success animation -->
+      <div style="width:6rem; height:6rem; background:linear-gradient(135deg,var(--primary),var(--secondary)); border-radius:9999px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; animation:popIn 0.5s cubic-bezier(0.22,1,0.36,1);">
+        <span class="material-symbols-outlined" style="font-size:3rem; color:#fff; font-variation-settings:'FILL' 1;">check_circle</span>
+      </div>
+
+      <h1 class="font-headline" style="font-size:2rem; color:var(--on-surface); margin:0 0 0.5rem;">Order Placed!</h1>
+      <p style="font-family:'Manrope',sans-serif; color:var(--on-surface-variant); font-size:0.9rem; margin:0 0 0.5rem;">Thank you for your order.</p>
+      <div style="display:inline-block; background:var(--surface-container); border-radius:0.5rem; padding:0.5rem 1rem; margin-bottom:2rem;">
+        <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; color:var(--on-surface-variant); text-transform:uppercase; letter-spacing:0.1em;">Order ID</span>
+        <div id="order-id" style="font-family:'Noto Serif',serif; font-size:1.1rem; color:var(--primary); font-weight:600;"></div>
+      </div>
+
+      <!-- What's next timeline -->
+      <div style="background:var(--surface-container-low); border-radius:1rem; padding:1.5rem; text-align:left; margin-bottom:2rem;">
+        <h3 style="font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0 0 1.25rem;">What happens next?</h3>
+        <div style="display:flex; flex-direction:column; gap:0;">
+          {[
+            { icon: 'inventory_2',    label: 'Order Confirmed',       desc: 'We\'ve received your order and will verify it shortly.' },
+            { icon: 'local_shipping', label: 'Packed & Dispatched',   desc: 'Your botanical essentials are carefully packed and dispatched.' },
+            { icon: 'home',           label: 'Delivered to your door', desc: 'Pay comfortably on delivery when your order arrives.' },
+          ].map((step, i) => (
+            <div style={`display:flex; gap:1rem; ${i < 2 ? 'padding-bottom:1.25rem; border-left:2px solid var(--outline-variant); margin-left:1rem;' : 'margin-left:1rem;'}`}>
+              <div style="width:2rem; height:2rem; border-radius:9999px; background:linear-gradient(135deg,var(--primary),var(--secondary)); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-left:-1rem;">
+                <span class="material-symbols-outlined" style="font-size:1rem; color:#fff;">{step.icon}</span>
+              </div>
+              <div style="padding-top:0.25rem;">
+                <div style="font-family:'Manrope',sans-serif; font-size:0.875rem; font-weight:700; color:var(--on-surface);">{step.label}</div>
+                <div style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:var(--on-surface-variant); line-height:1.5;">{step.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <a id="view-orders-btn" href="/orders" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:1rem 2rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:#fff; border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none;">
+          <span class="material-symbols-outlined" style="font-size:1rem;">receipt_long</span>
+          View My Orders
+        </a>
+        <a href="/" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:1rem 2rem; background:none; color:var(--primary); border:1.5px solid var(--primary); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none;">
+          Continue Shopping
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  @keyframes popIn {
+    0%   { transform: scale(0); opacity: 0; }
+    70%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+
+<script>
+  const params  = new URLSearchParams(window.location.search);
+  const orderId = params.get('id') || '';
+  const el = document.getElementById('order-id');
+  if (el) el.textContent = orderId;
+
+  const viewBtn = document.getElementById('view-orders-btn') as HTMLAnchorElement;
+  if (viewBtn && orderId) viewBtn.href = `/orders?highlight=${orderId}`;
+</script>

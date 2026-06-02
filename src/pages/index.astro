@@ -14,7 +14,7 @@ const products = await getProducts();
   <main>
     <!-- Hero -->
     <section style="position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; background:var(--surface); padding-top:5rem;">
-      <div style="width:100%; max-width:80rem; margin:0 auto; padding:0 3rem; display:grid; gap:2rem; align-items:center;" class="hero-grid">
+      <div style="width:100%; max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); display:grid; gap:2rem; align-items:center;" class="hero-grid">
         <div style="z-index:10;">
           <h1 class="font-headline reveal-on-scroll" style="font-size:clamp(3rem,8vw,6rem); color:var(--on-surface); line-height:1.1; letter-spacing:-0.02em; margin:0 0 2rem;">
             The Art of <br/>
@@ -38,8 +38,8 @@ const products = await getProducts();
     </section>
 
     <!-- Featured Collection -->
-    <section style="padding:8rem 0; background:var(--surface-container-low);">
-      <div style="max-width:80rem; margin:0 auto; padding:0 3rem;">
+    <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface-container-low);">
+      <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
         <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
           <div>
             <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">The Curated Selection</span>
@@ -58,8 +58,8 @@ const products = await getProducts();
     </section>
 
     <!-- Brand Story -->
-    <section style="padding:10rem 0; background:var(--surface);">
-      <div style="max-width:56rem; margin:0 auto; padding:0 3rem; text-align:center;">
+    <section style="padding:clamp(3.5rem,10vw,10rem) 0; background:var(--surface);">
+      <div style="max-width:56rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); text-align:center;">
         <span class="reveal-on-scroll" style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.4em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:2rem;">Our Philosophy</span>
         <h2 class="font-headline reveal-on-scroll" style="font-size:clamp(2rem,5vw,3.5rem); color:var(--on-surface); line-height:1.2; margin:0 0 4rem;">
           Where <span style="font-style:italic;">Botanical Wisdom</span> meets<br/>Scientific Precision.
@@ -82,7 +82,7 @@ const products = await getProducts();
       <div style="position:absolute; inset:0; z-index:0;">
         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYEhTnBmm3NRFulaETPdVP_ft8IPxHq7raXnCbJuMoSW8bHvZIlyVO6R2ci18UKj-jORbsF5w6dZFJwofkdADmeW_nIQe6Tjw6i5s6HfQRHNg4dh5JQQoGBZWpx6MIyOWGw6a-KiS4SJiERcLXLr1uPJoZxXEK6lVuPy0sJoHqp9wZs3lcy5SezH5z8gbZCcq7SKfZyyBecqlEcWp4CP6UnfXKjl0OgAZj6gMc3fGqguy0UYXcmoifQuDS-t3TE1OpiiCUMbAHtmg" alt="Skincare ritual" style="width:100%; height:100%; object-fit:cover; opacity:0.6;"/>
       </div>
-      <div style="max-width:80rem; margin:0 auto; padding:0 3rem; position:relative; z-index:10; width:100%;">
+      <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); position:relative; z-index:10; width:100%;">
         <div class="reveal-on-scroll ritual-card" style="max-width:32rem; background:rgba(252,249,249,0.85); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-radius:0.75rem; box-shadow:0 25px 60px rgba(0,0,0,0.12);">
           <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.4em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1.5rem;">Guided Transformation</span>
           <h2 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.5rem); color:var(--on-surface); margin:0 0 2rem; line-height:1.2;">Elevate Your Daily Ritual</h2>
