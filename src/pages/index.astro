@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { getProducts } from '../data/products.ts';
+
+const products = await getProducts();
+---
+
+<BaseLayout>
+  <Header />
+
+  <main>
+    <!-- Hero -->
+    <section style="position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; background:var(--surface); padding-top:5rem;">
+      <div style="width:100%; max-width:80rem; margin:0 auto; padding:0 3rem; display:grid; gap:2rem; align-items:center;" class="hero-grid">
+        <div style="z-index:10;">
+          <h1 class="font-headline reveal-on-scroll" style="font-size:clamp(3rem,8vw,6rem); color:var(--on-surface); line-height:1.1; letter-spacing:-0.02em; margin:0 0 2rem;">
+            The Art of <br/>
+            <span style="font-style:italic; font-weight:300; color:var(--primary);">Botanical</span> <br/>
+            Luxury
+          </h1>
+          <p class="font-body reveal-on-scroll" style="font-size:1.125rem; color:var(--on-surface-variant); max-width:28rem; line-height:1.8; margin:0 0 2.5rem; transition-delay:200ms;">
+            Harnessing the rare cellular intelligence of the orchid to transform your skin's nocturnal architecture.
+          </p>
+          <div class="reveal-on-scroll" style="transition-delay:400ms;">
+            <a href="/collection" style="display:inline-block; padding:1.25rem 2.5rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:var(--on-primary); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; box-shadow:0 8px 24px rgba(111,5,98,0.2); transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(111,5,98,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 8px 24px rgba(111,5,98,0.2)'">
+              Discover the Essence
+            </a>
+          </div>
+        </div>
+        <div class="hero-image reveal-on-scroll" style="position:relative; display:flex; align-items:center; justify-content:center; min-height:400px; transition-delay:300ms;">
+          <div style="position:absolute; right:-5rem; top:50%; transform:translateY(-50%); width:120%; height:80%; background:var(--surface-container-low); border-radius:10rem; rotate:-6deg; z-index:0;"></div>
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy6TUydg_UOX33vBqvljADPecjE0mOeZiaH9vHgcTmiyzcVp3qV68mxPyliuXw9CizaQvukBXyvnIDwfVk4-Prux5Dvq8W6_WXMqE2Les4Hwd_ny0ifgT_tY7iuWS_nQyVMvwGd3SUVHZTAl439oeQXlR46COOMq4gJJ4U95iMxdW8a5QUiRts-hGnqUzCD_aitTD1gcD0JO3n4ZIJN-E1X59B8lclzO7kK75Bh_G8pfbvYJPVBzn0JZcF9Gjhi470NJSislY_qWg" alt="Orchid Dew Serum" style="position:relative; z-index:10; width:100%; max-width:36rem; height:auto; object-fit:cover; border-radius:0.75rem; box-shadow:0 25px 60px rgba(0,0,0,0.15);" loading="eager"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Collection -->
+    <section style="padding:8rem 0; background:var(--surface-container-low);">
+      <div style="max-width:80rem; margin:0 auto; padding:0 3rem;">
+        <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
+          <div>
+            <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">The Curated Selection</span>
+            <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Seasonal Icons</h2>
+          </div>
+          <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
+            View All Atelier <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
+          </a>
+        </div>
+        <div class="products-grid">
+          {products.map((product, i) => (
+            <ProductCard product={product} delay={i * 200} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Brand Story -->
+    <section style="padding:10rem 0; background:var(--surface);">
+      <div style="max-width:56rem; margin:0 auto; padding:0 3rem; text-align:center;">
+        <span class="reveal-on-scroll" style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.4em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:2rem;">Our Philosophy</span>
+        <h2 class="font-headline reveal-on-scroll" style="font-size:clamp(2rem,5vw,3.5rem); color:var(--on-surface); line-height:1.2; margin:0 0 4rem;">
+          Where <span style="font-style:italic;">Botanical Wisdom</span> meets<br/>Scientific Precision.
+        </h2>
+        <div class="philosophy-grid" style="display:grid; gap:4rem; text-align:left;">
+          <div class="reveal-on-scroll" style="transition-delay:200ms;">
+            <h4 class="font-headline" style="font-size:1.5rem; color:var(--primary); margin:0 0 1rem;">The Rare Orchid</h4>
+            <p class="font-body" style="color:var(--on-surface-variant); line-height:1.8; font-size:1.125rem; margin:0;">We source the rarest Vanda orchids from high-altitude sanctuaries. These resilient blooms contain a unique longevity molecule that mimics the skin's natural repair cycle, providing unprecedented cellular rejuvenation.</p>
+          </div>
+          <div class="reveal-on-scroll" style="transition-delay:400ms;">
+            <h4 class="font-headline" style="font-size:1.5rem; color:var(--primary); margin:0 0 1rem;">Molecular Integrity</h4>
+            <p class="font-body" style="color:var(--on-surface-variant); line-height:1.8; font-size:1.125rem; margin:0;">Our patented extraction process preserves the plant's vital essence at the molecular level. Every drop is a symphony of pure bio-actives, formulated without synthetic fillers to ensure profound efficacy.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The Ritual -->
+    <section style="position:relative; min-height:51rem; display:flex; align-items:center; background:var(--surface-container-high); overflow:hidden;">
+      <div style="position:absolute; inset:0; z-index:0;">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYEhTnBmm3NRFulaETPdVP_ft8IPxHq7raXnCbJuMoSW8bHvZIlyVO6R2ci18UKj-jORbsF5w6dZFJwofkdADmeW_nIQe6Tjw6i5s6HfQRHNg4dh5JQQoGBZWpx6MIyOWGw6a-KiS4SJiERcLXLr1uPJoZxXEK6lVuPy0sJoHqp9wZs3lcy5SezH5z8gbZCcq7SKfZyyBecqlEcWp4CP6UnfXKjl0OgAZj6gMc3fGqguy0UYXcmoifQuDS-t3TE1OpiiCUMbAHtmg" alt="Skincare ritual" style="width:100%; height:100%; object-fit:cover; opacity:0.6;"/>
+      </div>
+      <div style="max-width:80rem; margin:0 auto; padding:0 3rem; position:relative; z-index:10; width:100%;">
+        <div class="reveal-on-scroll ritual-card" style="max-width:32rem; background:rgba(252,249,249,0.85); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-radius:0.75rem; box-shadow:0 25px 60px rgba(0,0,0,0.12);">
+          <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.4em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1.5rem;">Guided Transformation</span>
+          <h2 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.5rem); color:var(--on-surface); margin:0 0 2rem; line-height:1.2;">Elevate Your Daily Ritual</h2>
+          <p class="font-body" style="color:var(--on-surface-variant); font-size:1.125rem; line-height:1.8; margin:0 0 2.5rem;">More than just application; it's a sensory conversation with your skin. Discover our morning and evening protocols designed for maximal absorption and mindful presence.</p>
+          <a href="/ritual" style="display:inline-block; padding:1.25rem 3rem; background:var(--on-surface); color:var(--surface); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; transition:background 0.3s;" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='var(--on-surface)'">
+            Start Your Ritual
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero-grid { grid-template-columns: 1fr; }
+  .products-grid { display:grid; grid-template-columns:1fr; gap:3rem; }
+  .philosophy-grid { grid-template-columns: 1fr; }
+  .ritual-card { padding: 3rem; }
+
+  @media (min-width: 768px) {
+    .hero-grid { grid-template-columns: 5fr 7fr; }
+    .collection-header { flex-direction:row !important; align-items:flex-end !important; justify-content:space-between !important; }
+    .products-grid { grid-template-columns: repeat(3,1fr); }
+    .philosophy-grid { grid-template-columns: 1fr 1fr; }
+    .ritual-card { padding: 4rem 5rem !important; }
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); }),
+    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+  );
+  document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+</script>

@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getProducts } from '../../data/products.ts';
+
+const products = await getProducts();
+---
+
+<BaseLayout title="Collection | Gladskin">
+  <Header />
+  <main style="padding-top:8rem; min-height:100vh; background:var(--surface);">
+    <div style="max-width:80rem; margin:0 auto; padding:4rem 3rem;">
+      <div style="text-align:center; margin-bottom:5rem;">
+        <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">All Products</span>
+        <h1 class="font-headline" style="font-size:clamp(2.5rem,5vw,4rem); color:var(--on-surface); margin:0;">The Full Collection</h1>
+      </div>
+      <div class="products-grid">
+        {products.map((product, i) => (
+          <ProductCard product={product} delay={i * 150} />
+        ))}
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .products-grid { display:grid; grid-template-columns:1fr; gap:3rem; }
+  @media (min-width:640px) { .products-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (min-width:1024px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); }),
+    { threshold: 0.1 }
+  );
+  document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+</script>

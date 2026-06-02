@@ -1,0 +1,124 @@
+---
+import type { Product } from '../types/index.ts';
+
+interface Props {
+  product: Product;
+  delay?: number;
+}
+
+const { product, delay = 0 } = Astro.props;
+---
+
+<div class="product-card reveal-on-scroll" style={`transition-delay:${delay}ms;`}>
+  <div class="product-image-wrap">
+    <img
+      src={product.image}
+      alt={product.imageAlt}
+      loading="lazy"
+      decoding="async"
+    />
+    {product.badge && (
+      <span class="product-badge">{product.badge}</span>
+    )}
+  </div>
+  <h3 class="product-name font-headline">{product.name}</h3>
+  <div class="product-category">
+    <span>{product.category}</span>
+  </div>
+  <div class="product-footer">
+    <span class="product-price font-body">₹{product.price.toFixed(2)}</span>
+    <a href={`/products/${product.slug}`} class="product-link font-label">View Detail</a>
+  </div>
+</div>
+
+<style>
+  .product-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-image-wrap {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: var(--surface-container);
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s ease;
+  }
+
+  .product-card:hover .product-image-wrap img {
+    transform: scale(1.1);
+  }
+
+  .product-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #c9f089;
+    color: #121f00;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Manrope', sans-serif;
+  }
+
+  .product-name {
+    font-size: 1.5rem;
+    color: var(--on-surface);
+    margin: 0 0 0.5rem;
+    font-weight: 400;
+  }
+
+  .product-category {
+    margin-bottom: 1rem;
+  }
+
+  .product-category span {
+    background: rgba(201, 240, 137, 0.3);
+    color: var(--on-tertiary-fixed-variant);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'Manrope', sans-serif;
+  }
+
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .product-price {
+    color: var(--on-surface-variant);
+    font-size: 1rem;
+  }
+
+  .product-link {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: border-color 0.3s;
+  }
+
+  .product-link:hover {
+    border-bottom-color: var(--primary);
+  }
+</style>
