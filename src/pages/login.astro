@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Sign In | Gladskin">
+  <Header />
+  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface); display:flex; align-items:center; justify-content:center;">
+    <div style="width:100%; max-width:26rem; margin:0 auto; padding:3rem clamp(1.25rem,4vw,3rem);">
+      <h1 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.25rem); color:var(--on-surface); margin:0 0 0.5rem; text-align:center;">Sign In</h1>
+      <p style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); text-align:center; margin:0 0 2rem;">Use your phone number to sign in or create an account.</p>
+
+      <!-- Step 1: phone -->
+      <div id="step-phone" style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="lfield">
+          <label class="llabel">Mobile Number</label>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="font-family:'Manrope',sans-serif; font-size:0.9rem; color:var(--on-surface-variant); padding:0.7rem 0;">+91</span>
+            <input id="l-phone" type="tel" class="linput" placeholder="10-digit mobile number" maxlength="10" />
+          </div>
+        </div>
+        <button id="send-otp-btn" class="lbtn-primary">Send OTP</button>
+      </div>
+
+      <!-- Step 2: otp -->
+      <div id="step-otp" style="display:none; flex-direction:column; gap:1rem;">
+        <p style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); margin:0;">
+          Enter the 4-digit code sent to <span id="otp-phone-display" style="color:var(--on-surface); font-weight:700;"></span>
+        </p>
+        <div class="lfield">
+          <label class="llabel">OTP</label>
+          <input id="l-otp" type="tel" class="linput" placeholder="• • • •" maxlength="6" style="letter-spacing:0.4em; text-align:center;" />
+        </div>
+        <button id="verify-otp-btn" class="lbtn-primary">Verify &amp; Continue</button>
+        <button id="change-number-btn" class="lbtn-text">Change number</button>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .lfield { display:flex; flex-direction:column; gap:0.4rem; }
+  .llabel { font-family:'Manrope',sans-serif; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--on-surface-variant); }
+  .linput { flex:1; padding:0.7rem 1rem; border:1px solid var(--outline-variant); border-radius:0.625rem; font-family:'Manrope',sans-serif; font-size:0.95rem; color:var(--on-surface); background:var(--surface); outline:none; transition:border-color 0.2s; width:100%; box-sizing:border-box; }
+  .linput:focus { border-color:var(--primary); }
+  .lbtn-primary { padding:0.85rem 1.5rem; background:var(--primary); color:#fff; border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; box-shadow:0 8px 24px rgba(111,5,98,0.2); }
+  .lbtn-primary:hover { transform:translateY(-1px); }
+  .lbtn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+  .lbtn-text { background:none; border:none; color:var(--primary); font-family:'Manrope',sans-serif; font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; padding:0.4rem; }
+</style>
+
+<script>
+  import { sendOtp, verifyOtp } from '../lib/auth';
+
+  const stepPhone   = document.getElementById('step-phone')!;
+  const stepOtp     = document.getElementById('step-otp')!;
+  const phoneInput  = document.getElementById('l-phone') as HTMLInputElement;
+  const otpInput    = document.getElementById('l-otp') as HTMLInputElement;
+  const sendBtn     = document.getElementById('send-otp-btn') as HTMLButtonElement;
+  const verifyBtn   = document.getElementById('verify-otp-btn') as HTMLButtonElement;
+  const changeBtn   = document.getElementById('change-number-btn')!;
+  const phoneDisplay = document.getElementById('otp-phone-display')!;
+
+  let currentPhone = '';
+  let currentReqId = '';
+
+  function showToast(msg: string, err = false) {
+    let t = document.getElementById('login-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'login-toast';
+      t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(4rem);padding:0.75rem 1.5rem;border-radius:9999px;font-family:Manrope,sans-serif;font-size:0.8rem;font-weight:600;opacity:0;transition:all 0.3s;z-index:100;white-space:nowrap;';
+      document.body.appendChild(t);
+    }
+    t.style.background = err ? '#c62828' : 'var(--on-surface)';
+    t.style.color = '#fff';
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => { t!.style.opacity = '0'; t!.style.transform = 'translateX(-50%) translateY(4rem)'; }, 2500);
+  }
+
+  function getRedirectTarget() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('next') || '/profile';
+  }
+
+  sendBtn.addEventListener('click', async () => {
+    const phone = phoneInput.value.trim();
+    if (!/^\d{10}$/.test(phone)) { showToast('Enter a valid 10-digit mobile number.', true); return; }
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending…';
+    try {
+      const result = await sendOtp(phone);
+      if (!result.success || !result.reqId) throw new Error('Could not send OTP');
+      currentPhone = phone;
+      currentReqId = result.reqId;
+      phoneDisplay.textContent = `+91 ${phone}`;
+      stepPhone.style.display = 'none';
+      stepOtp.style.display = 'flex';
+      otpInput.focus();
+      showToast('OTP sent');
+    } catch (e: any) {
+      showToast(e.message || 'Failed to send OTP. Try again.', true);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send OTP';
+    }
+  });
+
+  verifyBtn.addEventListener('click', async () => {
+    const otp = otpInput.value.trim();
+    if (!otp) { showToast('Enter the OTP sent to your phone.', true); return; }
+
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Verifying…';
+    try {
+      await verifyOtp(currentPhone, otp, currentReqId);
+      showToast('Signed in');
+      window.location.href = getRedirectTarget();
+    } catch (e: any) {
+      showToast(e.message || 'Invalid OTP. Try again.', true);
+    } finally {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify & Continue';
+    }
+  });
+
+  changeBtn.addEventListener('click', () => {
+    stepOtp.style.display = 'none';
+    stepPhone.style.display = 'flex';
+    otpInput.value = '';
+    currentReqId = '';
+  });
+</script>

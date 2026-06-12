@@ -1,86 +1,104 @@
 ---
 ---
 
-<footer style="background:var(--surface-container-low);">
+<footer class="site-footer">
+  <div class="footer-inner">
 
-  <!-- Brand — centered -->
-  <div style="text-align:center; padding:1.75rem 2rem 1rem;">
-    <span class="footer-logo-shimmer" style="font-family:'Noto Serif',serif; font-size:1.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.3em; display:inline-block;">Gladskin</span>
-    <p style="font-family:'Manrope',sans-serif; color:var(--on-surface-variant); line-height:1.7; font-size:0.875rem; margin:0.4rem auto 0; max-width:28rem;">
-      Curating the world's most potent botanicals for a life of radiant longevity.
-    </p>
+    <img src="/app-header.svg" alt="Gladskin" class="footer-logo" />
+    <p class="footer-tagline">Science-backed skincare for radiant skin.</p>
+
+    <div class="footer-rule"></div>
+
+    <nav class="footer-nav">
+      <a href="/collection" class="footer-link">Collection</a>
+      <span class="footer-dot"></span>
+      <a href="/ritual" class="footer-link">Ritual</a>
+    </nav>
+
+    <p class="footer-copy">© 2024 Gladskin. All rights reserved.</p>
+
   </div>
-
-  <!-- Divider -->
-  <div style="height:1px; background:linear-gradient(90deg, transparent, rgba(215,192,205,0.5) 30%, var(--primary) 50%, rgba(215,192,205,0.5) 70%, transparent); margin:0 2rem;"></div>
-
-  <!-- Links grid -->
-  <div style="display:grid; gap:1.5rem; padding:1.5rem 2rem;" class="footer-grid">
-
-    <!-- Maison -->
-    <div>
-      <h5 style="font-family:'Manrope',sans-serif; font-weight:800; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--on-surface); margin:0 0 0.75rem;">Maison</h5>
-      <div style="display:flex; flex-direction:column; gap:0.6rem;">
-        {['Atelier','Collection','Ritual'].map(item => (
-          <a href={`/${item.toLowerCase()}`} style="font-family:'Manrope',sans-serif; font-size:0.9rem; color:var(--on-surface-variant); text-decoration:none; transition:all 0.3s;" onmouseover="this.style.color='var(--on-surface)'; this.style.paddingLeft='4px'" onmouseout="this.style.color='var(--on-surface-variant)'; this.style.paddingLeft='0'">{item}</a>
-        ))}
-      </div>
-    </div>
-
-    <!-- Concierge -->
-    <div>
-      <h5 style="font-family:'Manrope',sans-serif; font-weight:800; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--on-surface); margin:0 0 0.75rem;">Concierge</h5>
-      <div style="display:flex; flex-direction:column; gap:0.6rem;">
-        {[
-          { label: 'Sitemap', href: '/sitemap' },
-          { label: 'Privacy Policy', href: '/privacy' },
-          { label: 'Terms of Service', href: '/terms' },
-          { label: 'Shipping & Returns', href: '/shipping' },
-        ].map(item => (
-          <a href={item.href} style="font-family:'Manrope',sans-serif; font-size:0.9rem; color:var(--on-surface-variant); text-decoration:none; transition:all 0.3s;" onmouseover="this.style.color='var(--on-surface)'; this.style.paddingLeft='4px'" onmouseout="this.style.color='var(--on-surface-variant)'; this.style.paddingLeft='0'">{item.label}</a>
-        ))}
-      </div>
-    </div>
-
-    <!-- Newsletter -->
-    <div>
-      <h5 style="font-family:'Manrope',sans-serif; font-weight:800; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--on-surface); margin:0 0 0.75rem;">Newsletter</h5>
-      <p style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); margin:0 0 0.75rem;">Join our inner circle for exclusive botanical insights.</p>
-      <form id="newsletter-form" style="position:relative;" method="POST" action="/api/newsletter">
-        <input type="email" name="email" placeholder="Email Address" required
-          style="width:100%; background:transparent; border:none; border-bottom:1px solid var(--outline-variant); padding:0.65rem 2rem 0.65rem 0; font-family:'Manrope',sans-serif; color:var(--on-surface); outline:none; font-size:0.9rem; transition:border-color 0.3s;"
-          onfocus="this.style.borderBottomColor='var(--primary)'"
-          onblur="this.style.borderBottomColor='var(--outline-variant)'" />
-        <button type="submit" style="position:absolute; right:0; bottom:0.65rem; background:none; border:none; cursor:pointer; color:var(--primary);" aria-label="Subscribe">
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Bottom bar -->
-  <div style="padding:1rem 2rem; border-top:1px solid rgba(215,192,205,0.2); display:flex; flex-direction:column; align-items:center; gap:0.4rem; text-align:center;">
-    <div style="display:flex; gap:1.5rem;">
-      <a href="#" aria-label="Website" style="color:var(--on-surface-variant); text-decoration:none; transition:color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--on-surface-variant)'">
-        <span class="material-symbols-outlined">public</span>
-      </a>
-      <a href="#" aria-label="Instagram" style="color:var(--on-surface-variant); text-decoration:none; transition:color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--on-surface-variant)'">
-        <span class="material-symbols-outlined">camera</span>
-      </a>
-    </div>
-    <p style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); margin:0;">© 2024 Gladskin. Crafted with botanical wisdom.</p>
-  </div>
-
 </footer>
 
 <style>
-  .footer-grid {
-    grid-template-columns: 1fr;
+  .site-footer {
+    background: var(--surface-container-low);
+    border-top: 1px solid var(--outline-variant);
   }
-  @media (min-width: 768px) {
-    .footer-grid {
-      grid-template-columns: repeat(3, 1fr);
-      padding: 1.5rem 3rem !important;
-    }
+
+  .footer-inner {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1.5rem clamp(1.25rem, 4vw, 3rem) 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    text-align: center;
+  }
+
+  .footer-logo {
+    display: block;
+    height: 30px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+    margin-bottom: 0.4rem;
+  }
+
+  .footer-tagline {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.77rem;
+    color: var(--on-surface-variant);
+    margin: 0;
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-rule {
+    width: 3rem;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    margin: 0.875rem 0;
+    border-radius: 9999px;
+  }
+
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .footer-link {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-link:hover { color: var(--primary); }
+
+  .footer-dot {
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--outline-variant);
+    flex-shrink: 0;
+  }
+
+  .footer-copy {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    margin: 0;
+    border-top: 1px solid var(--outline-variant);
+    padding-top: 0.75rem;
+    width: 100%;
   }
 </style>

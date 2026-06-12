@@ -34,8 +34,10 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <script>
+  import { subscribeToAuth } from '../lib/auth';
+  import { addToCart } from '../lib/firestore-data';
+
   const WISHLIST_KEY = 'gladskin_wishlist';
-  const CART_KEY     = 'gladskin_cart';
 
   function getWishlist() {
     try { return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'); } catch { return []; }
@@ -43,12 +45,9 @@ import Footer from '../components/Footer.astro';
   function saveWishlist(items: any[]) {
     localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
   }
-  function getCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
-  }
-  function saveCart(items: any[]) {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
-  }
+
+  let currentUid: string | null = null;
+  subscribeToAuth(user => { currentUid = user ? user.uid : null; });
 
   function showToast(msg: string) {
     const t = document.getElementById('toast')!;
@@ -61,26 +60,20 @@ import Footer from '../components/Footer.astro';
     }, 2500);
   }
 
-  function moveToBag(item: any) {
-    const cart = getCart();
-    const existing = cart.find((c: any) => c.id === item.id);
-    if (existing) {
-      existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-      cart.push({ ...item, quantity: 1 });
+  async function moveToBag(item: any) {
+    if (!currentUid) {
+      window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+      return;
     }
-    saveCart(cart);
-
-    // Update cart count in header
-    const countEl = document.getElementById('cart-count');
-    if (countEl) {
-      const total = cart.reduce((s: number, c: any) => s + (c.quantity || 1), 0);
-      countEl.textContent = String(total);
+    try {
+      // Wishlist items already carry the product fields addToCart needs
+      // (id, name, price, image, slug, category) — no extra lookup required.
+      await addToCart(currentUid, item, 1);
+      removeFromWishlist(item.id, false);
+      showToast('Moved to bag');
+    } catch {
+      showToast('Could not move to bag. Try again.');
     }
-
-    // Remove from wishlist
-    removeFromWishlist(item.id, false);
-    showToast('Moved to bag');
   }
 
   function removeFromWishlist(id: string, toast = true) {

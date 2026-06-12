@@ -3,48 +3,68 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ProductCard from '../../components/ProductCard.astro';
-import { getProducts, categories } from '../../data/products.ts';
+import { getProducts } from '../../data/products.ts';
+import { fetchLiveCategories } from '../../lib/woocommerce.ts';
 
 const products = await getProducts();
-const allCategories = ['All', ...categories];
+
+// Fetch top-level WooCommerce categories (parent=0, hide_empty=true).
+// All tabs are server-rendered; Firebase Remote Config filters them client-side
+// to match the app's curated category list (key: productcategories).
+interface CatEntry { id: number; name: string }
+let liveCats: CatEntry[] = [];
+try {
+  const cats = await fetchLiveCategories();
+  // Exclude obvious internal/admin categories by slug
+  const internalSlugs = new Set(['homepage', 'mobile-app', 'products', 'uncategorized']);
+  liveCats = cats
+    .filter(c => !internalSlugs.has(c.slug))
+    .map(c => ({ id: c.id, name: c.name }));
+} catch {
+  liveCats = [...new Set(products.map(p => p.category))].map((n, i) => ({ id: i, name: n }));
+}
+const catDataJson = JSON.stringify(liveCats);
 ---
 
 <BaseLayout title="Collection | Gladskin">
   <Header />
-  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface);">
-    <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem) 2rem;">
+  <main class="collection-main">
 
-      <!-- Header + Search row -->
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding-top:1.5rem; margin-bottom:1rem;">
+    <!-- Page hero band -->
+    <div class="collection-hero">
+      <div class="collection-hero-inner">
         <div>
-          <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.25em; text-transform:uppercase; font-size:0.85rem; font-weight:800; display:block; margin-bottom:0.3rem;">All Products</span>
-          <h1 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.5rem); color:var(--on-surface); margin:0;">The Full Collection</h1>
+          <p class="collection-eyebrow">All Products</p>
+          <h1 class="collection-title font-headline">The Full Collection</h1>
         </div>
-        <a href="/search" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 1.25rem; border:1.5px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); text-decoration:none; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)';" onmouseout="this.style.borderColor='var(--outline-variant)'; this.style.color='var(--on-surface-variant)';">
-          <span class="material-symbols-outlined" style="font-size:1.1rem;">search</span>Search
+        <a href="/search" class="search-btn">
+          <span class="material-symbols-outlined">search</span>Search
         </a>
       </div>
+    </div>
+
+    <div class="collection-body">
+
+      <!-- Category data for client-side Remote Config filtering -->
+      <script type="application/json" id="woo-cat-data" set:html={catDataJson}></script>
 
       <!-- Category filter tabs -->
-      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem;">
-        {allCategories.map(cat => (
-          <button
-            class="cat-filter"
-            data-cat={cat}
-            style={`padding:0.5rem 1.1rem; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:1.5px solid ${cat === 'All' ? 'var(--primary)' : 'var(--outline-variant)'}; background:${cat === 'All' ? 'var(--primary)' : 'transparent'}; color:${cat === 'All' ? '#fff' : 'var(--on-surface-variant)'};`}
-          >
-            {cat}
+      <div id="cat-filters" class="filter-bar">
+        <button class="cat-filter active-filter" data-cat="All">All</button>
+        {liveCats.map(cat => (
+          <button class="cat-filter" data-cat={cat.name} data-cat-id={cat.id} style="display:none">
+            {cat.name}
           </button>
         ))}
       </div>
 
       <!-- Result count -->
-      <p id="filter-count" style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); margin:0 0 1.5rem;">{products.length} products</p>
+      <p id="filter-count" class="result-count">{products.length} products</p>
 
       <!-- Grid -->
       <div class="products-grid" id="products-grid">
         {products.map((product, i) => (
-          <div class="product-item reveal-on-scroll" data-category={product.category} style={`transition-delay:${i*100}ms;`}>
+          <div class="product-item" data-category={product.category} style={`animation-delay:${Math.min(i * 40, 240)}ms`}>
             <ProductCard product={product} delay={0} />
           </div>
         ))}
@@ -55,59 +75,196 @@ const allCategories = ['All', ...categories];
         <span class="material-symbols-outlined" style="font-size:3rem; color:var(--outline-variant); display:block; margin-bottom:1rem;">inventory_2</span>
         <p style="font-family:'Manrope',sans-serif; color:var(--on-surface-variant);">No products in this category yet.</p>
       </div>
-    </div>
+    </div><!-- /collection-body -->
   </main>
   <Footer />
 </BaseLayout>
 
 <style>
-  .products-grid { display:grid; grid-template-columns:1fr; gap:2.5rem; }
-  @media (min-width:640px)  { .products-grid { grid-template-columns: repeat(2,1fr); } }
-  @media (min-width:1280px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
+  /* ── Layout ── */
+  .collection-main { min-height: 100vh; background: var(--surface); padding-top: 3.25rem; }
 
-  .product-item { transition: opacity 0.3s, transform 0.3s; }
+  .collection-hero {
+    background: linear-gradient(135deg, var(--surface-container-low) 0%, var(--surface) 100%);
+    border-bottom: 1px solid var(--outline-variant);
+    padding: 2rem clamp(1.25rem, 4vw, 3rem) 1.5rem;
+  }
+  .collection-hero-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .collection-eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    margin: 0 0 0.35rem;
+  }
+  .collection-title {
+    font-size: clamp(1.75rem, 3vw, 2.75rem);
+    color: var(--on-surface);
+    margin: 0;
+    font-weight: 400;
+  }
+  .search-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border: 1.5px solid var(--outline-variant);
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    transition: all 0.2s;
+    background: var(--surface-container-lowest);
+  }
+  .search-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .search-btn .material-symbols-outlined { font-size: 1.05rem; }
+
+  .collection-body {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1.5rem clamp(1.25rem, 4vw, 3rem) 3rem;
+  }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .cat-filter {
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1.5px solid var(--outline-variant);
+    background: transparent;
+    color: var(--on-surface-variant);
+    transition: all 0.18s;
+  }
+  .cat-filter:hover { border-color: var(--primary); color: var(--primary); }
+  .cat-filter.active-filter {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(111,5,98,0.25);
+  }
+
+  .result-count {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.8rem;
+    color: var(--on-surface-variant);
+    margin: 0 0 1.5rem;
+  }
+
+  /* ── Product grid ── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px)  { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
+  @media (min-width: 1280px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 1.75rem; } }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .product-item { animation: fadeUp 0.4s ease both; }
   .product-item.hidden { display: none; }
 </style>
 
 <script>
-  const buttons   = document.querySelectorAll('.cat-filter');
-  const items     = document.querySelectorAll('.product-item');
+  import { firebaseApp } from '../../lib/firebase-client';
+  import { getRemoteConfig, fetchAndActivate, getString } from 'firebase/remote-config';
+
+  // ── Filter tabs logic ─────────────────────────────────────────────────────
+  function getVisibleButtons() {
+    return Array.from(document.querySelectorAll<HTMLElement>('.cat-filter'))
+      .filter(b => b.style.display !== 'none');
+  }
+
+  const items     = document.querySelectorAll<HTMLElement>('.product-item');
   const countEl   = document.getElementById('filter-count')!;
   const noResults = document.getElementById('no-cat-results')!;
   const grid      = document.getElementById('products-grid')!;
 
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cat = (btn as HTMLElement).dataset.cat!;
-
-      // Style active button
-      buttons.forEach(b => {
-        const el = b as HTMLElement;
-        const isActive = el.dataset.cat === cat;
-        el.style.background    = isActive ? 'var(--primary)' : 'transparent';
-        el.style.color         = isActive ? '#fff' : 'var(--on-surface-variant)';
-        el.style.borderColor   = isActive ? 'var(--primary)' : 'var(--outline-variant)';
-      });
-
-      // Filter items
-      let visible = 0;
-      items.forEach(item => {
-        const el = item as HTMLElement;
-        const match = cat === 'All' || el.dataset.category === cat;
-        el.classList.toggle('hidden', !match);
-        if (match) visible++;
-      });
-
-      countEl.textContent = `${visible} product${visible !== 1 ? 's' : ''}${cat !== 'All' ? ` in ${cat}` : ''}`;
-      noResults.style.display = visible === 0 ? 'block' : 'none';
-      grid.style.display      = visible === 0 ? 'none' : '';
+  function applyFilter(cat: string) {
+    const btns = getVisibleButtons();
+    btns.forEach(b => {
+      b.classList.toggle('active-filter', b.dataset.cat === cat);
     });
+    let visible = 0;
+    items.forEach(item => {
+      const match = cat === 'All' || item.dataset.category === cat;
+      item.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+    countEl.textContent = `${visible} product${visible !== 1 ? 's' : ''}${cat !== 'All' ? ` in ${cat}` : ''}`;
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+    grid.style.display      = visible === 0 ? 'none' : '';
+  }
+
+  document.querySelectorAll<HTMLElement>('.cat-filter').forEach(btn => {
+    btn.addEventListener('click', () => applyFilter(btn.dataset.cat!));
   });
 
-  // Scroll reveal
-  const observer = new IntersectionObserver(
-    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); }),
-    { threshold: 0.1 }
-  );
-  document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+  // ── Category filter reveal via Remote Config ────────────────────────────
+  // Tabs start hidden (display:none). We show only the curated subset that
+  // matches the app's "productcategories" Remote Config key.
+  // localStorage caches the allowed IDs so repeat visits show tabs instantly
+  // with zero flash — no "show all then hide some" glitch.
+  const RC_CACHE_KEY = 'gs_rc_cats_v1';
+  const RC_CACHE_TTL = 5 * 60 * 1000;
+
+  function showAllowedTabs(allowedIds: Set<number> | null) {
+    document.querySelectorAll<HTMLElement>('.cat-filter[data-cat-id]').forEach(btn => {
+      const id = parseInt(btn.dataset.catId!, 10);
+      btn.style.display = (allowedIds === null || allowedIds.has(id)) ? '' : 'none';
+    });
+  }
+
+  async function loadCategoryFilters() {
+    // 1. Try localStorage cache first → instant, no flash
+    try {
+      const cached = JSON.parse(localStorage.getItem(RC_CACHE_KEY) || 'null');
+      if (cached && Date.now() - cached.ts < RC_CACHE_TTL && Array.isArray(cached.ids)) {
+        showAllowedTabs(new Set<number>(cached.ids));
+        return;
+      }
+    } catch {}
+
+    // 2. Fetch Remote Config (first visit or cache expired)
+    try {
+      const rc = getRemoteConfig(firebaseApp);
+      rc.settings.minimumFetchIntervalMillis = 300_000;
+      await fetchAndActivate(rc);
+      const raw = getString(rc, 'productcategories');
+      if (!raw) { showAllowedTabs(null); return; }
+
+      const ids = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+      localStorage.setItem(RC_CACHE_KEY, JSON.stringify({ ts: Date.now(), ids }));
+      showAllowedTabs(new Set<number>(ids));
+    } catch {
+      showAllowedTabs(null); // fallback: show all tabs
+    }
+  }
+  loadCategoryFilters();
 </script>

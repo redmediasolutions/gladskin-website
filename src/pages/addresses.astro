@@ -33,7 +33,7 @@ import Footer from '../components/Footer.astro';
             <div class="afield"><label class="alabel">Full Name *</label><input id="a-name"    type="text"  class="ainput" placeholder="Elena Rossi" /></div>
             <div class="afield"><label class="alabel">Phone *</label>    <input id="a-phone"   type="tel"   class="ainput" placeholder="10-digit" maxlength="10" /></div>
           </div>
-          <div class="afield"><label class="alabel">House / Street / Area *</label><input id="a-address" type="text" class="ainput" placeholder="123, Orchid Lane" /></div>
+          <div class="afield"><label class="alabel">House / Street / Area *</label><input id="a-address-line" type="text" class="ainput" placeholder="123, Orchid Lane" /></div>
           <div class="aform-row-3">
             <div class="afield"><label class="alabel">City *</label>   <input id="a-city"    type="text" class="ainput" placeholder="Mumbai" /></div>
             <div class="afield"><label class="alabel">State *</label>  <input id="a-state"   type="text" class="ainput" placeholder="Maharashtra" /></div>
@@ -63,9 +63,11 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  const ADDR_KEY = 'gladskin_addresses';
-  function getAddrs() { try { return JSON.parse(localStorage.getItem(ADDR_KEY)||'[]'); } catch{return[];} }
-  function saveAddrs(a: any[]) { localStorage.setItem(ADDR_KEY, JSON.stringify(a)); }
+  import { subscribeToAuth } from '../lib/auth';
+  import { listAddresses, addAddress, updateAddress, deleteAddress, type AddressDoc } from '../lib/firestore-data';
+
+  let uid: string | null = null;
+  let addresses: AddressDoc[] = [];
 
   const listEl    = document.getElementById('address-list')!;
   const emptyEl   = document.getElementById('addr-empty')!;
@@ -87,13 +89,12 @@ import Footer from '../components/Footer.astro';
   }
 
   function render() {
-    const addrs = getAddrs();
-    emptyEl.style.display = addrs.length === 0 ? 'block' : 'none';
-    listEl.innerHTML = addrs.map((a: any) => `
+    emptyEl.style.display = addresses.length === 0 ? 'block' : 'none';
+    listEl.innerHTML = addresses.map((a) => `
       <div style="background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.25rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
         <div>
           <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:0.95rem; color:var(--on-surface); margin-bottom:0.3rem;">${a.name}</div>
-          <div style="font-family:'Manrope',sans-serif; font-size:0.82rem; color:var(--on-surface-variant); line-height:1.6;">${a.addressLine}, ${a.city}, ${a.state} – ${a.pincode}<br/>📞 ${a.phone}</div>
+          <div style="font-family:'Manrope',sans-serif; font-size:0.82rem; color:var(--on-surface-variant); line-height:1.6;">${a.address}, ${a.city}, ${a.state} – ${a.pincode}<br/>📞 ${a.phone}</div>
         </div>
         <div style="display:flex; gap:0.5rem; flex-shrink:0;">
           <button onclick="window.__editAddr('${a.id}')" style="padding:0.4rem 0.75rem; border:1px solid var(--outline-variant); border-radius:9999px; background:none; cursor:pointer; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:600; color:var(--primary); display:flex; align-items:center; gap:0.25rem;">
@@ -107,16 +108,16 @@ import Footer from '../components/Footer.astro';
     `).join('');
   }
 
-  function openForm(addr?: any) {
+  function openForm(addr?: AddressDoc) {
     formSec.style.display = 'block';
     formTitle.textContent  = addr ? 'Edit Address' : 'New Address';
     editIdEl.value         = addr?.id || '';
-    setField('a-name',    addr?.name        || '');
-    setField('a-phone',   addr?.phone       || '');
-    setField('a-address', addr?.addressLine || '');
-    setField('a-city',    addr?.city        || '');
-    setField('a-state',   addr?.state       || '');
-    setField('a-pincode', addr?.pincode     || '');
+    setField('a-name',        addr?.name    || '');
+    setField('a-phone',       addr?.phone   || '');
+    setField('a-address-line', addr?.address || '');
+    setField('a-city',        addr?.city    || '');
+    setField('a-state',       addr?.state   || '');
+    setField('a-pincode',     addr?.pincode || '');
     formSec.scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
@@ -128,34 +129,55 @@ import Footer from '../components/Footer.astro';
   document.getElementById('add-new-btn')!.addEventListener('click', () => openForm());
   document.getElementById('cancel-form')!.addEventListener('click', closeForm);
 
-  document.getElementById('save-addr')!.addEventListener('click', () => {
-    const name=field('a-name'), phone=field('a-phone'), addressLine=field('a-address'),
+  document.getElementById('save-addr')!.addEventListener('click', async () => {
+    if (!uid) return;
+    const name=field('a-name'), phone=field('a-phone'), address=field('a-address-line'),
           city=field('a-city'), state=field('a-state'), pincode=field('a-pincode');
-    if (!name||!phone||!addressLine||!city||!state||!pincode) { showToast('Please fill all fields.',true); return; }
+    if (!name||!phone||!address||!city||!state||!pincode) { showToast('Please fill all fields.',true); return; }
     if (!/^\d{10}$/.test(phone))  { showToast('Enter a valid 10-digit phone.',true); return; }
     if (!/^\d{6}$/.test(pincode)) { showToast('Enter a valid 6-digit pincode.',true); return; }
 
-    const addrs = getAddrs();
-    const id    = editIdEl.value;
-    if (id) {
-      const idx = addrs.findIndex((a:any) => a.id === id);
-      if (idx > -1) addrs[idx] = { id, name, phone, addressLine, city, state, pincode };
-    } else {
-      addrs.push({ id:`addr_${Date.now()}`, name, phone, addressLine, city, state, pincode });
+    const id = editIdEl.value;
+    const data = { name, phone, address, city, state, pincode };
+    try {
+      if (id) {
+        await updateAddress(uid, id, data);
+        showToast('Address updated');
+      } else {
+        await addAddress(uid, data);
+        showToast('Address saved');
+      }
+      closeForm();
+      await loadAddresses();
+    } catch {
+      showToast('Could not save address. Try again.', true);
     }
-    saveAddrs(addrs);
-    closeForm();
-    render();
-    showToast(id ? 'Address updated' : 'Address saved');
   });
 
-  (window as any).__editAddr   = (id: string) => openForm(getAddrs().find((a:any)=>a.id===id));
-  (window as any).__deleteAddr = (id: string) => {
-    if (!confirm('Delete this address?')) return;
-    saveAddrs(getAddrs().filter((a:any)=>a.id!==id));
-    render();
-    showToast('Address deleted');
+  (window as any).__editAddr = (id: string) => openForm(addresses.find(a => a.id === id));
+  (window as any).__deleteAddr = async (id: string) => {
+    if (!uid || !confirm('Delete this address?')) return;
+    try {
+      await deleteAddress(uid, id);
+      await loadAddresses();
+      showToast('Address deleted');
+    } catch {
+      showToast('Could not delete address. Try again.', true);
+    }
   };
 
-  render();
+  async function loadAddresses() {
+    if (!uid) return;
+    addresses = await listAddresses(uid);
+    render();
+  }
+
+  subscribeToAuth(user => {
+    if (!user) {
+      window.location.href = '/login?next=/addresses';
+      return;
+    }
+    uid = user.uid;
+    loadAddresses();
+  });
 </script>

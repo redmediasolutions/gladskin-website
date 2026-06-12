@@ -8,6 +8,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
   category: string;
   badge?: string;
   image: string;

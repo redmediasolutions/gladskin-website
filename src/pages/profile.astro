@@ -12,19 +12,21 @@ import Footer from '../components/Footer.astro';
 
       <!-- ── Profile Hero ── -->
       <div class="profile-hero" style="display:flex; align-items:center; gap:2.5rem; padding:2rem 0 2.5rem;">
-        <div style="width:6rem; height:6rem; border-radius:9999px; overflow:hidden; border:3px solid var(--primary); flex-shrink:0;">
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy6TUydg_UOX33vBqvljADPecjE0mOeZiaH9vHgcTmiyzcVp3qV68mxPyliuXw9CizaQvukBXyvnIDwfVk4-Prux5Dvq8W6_WXMqE2Les4Hwd_ny0ifgT_tY7iuWS_nQyVMvwGd3SUVHZTAl439oeQXlR46COOMq4gJJ4U95iMxdW8a5QUiRts-hGnqUzCD_aitTD1gcD0JO3n4ZIJN-E1X59B8lclzO7kK75Bh_G8pfbvYJPVBzn0JZcF9Gjhi470NJSislY_qWg"
-            alt="Elena Rossi"
-            style="width:100%; height:100%; object-fit:cover;"
-          />
+        <div style="width:6rem; height:6rem; border-radius:9999px; overflow:hidden; border:3px solid var(--primary); flex-shrink:0; background:var(--surface-container); display:flex; align-items:center; justify-content:center;">
+          <span class="material-symbols-outlined" style="font-size:3rem; color:var(--primary);">person</span>
         </div>
         <div>
-          <h1 style="font-family:'Noto Serif',serif; font-size:clamp(1.75rem,4vw,2.75rem); font-weight:400; color:var(--on-surface); margin:0 0 0.75rem; line-height:1.1;">Elena Rossi</h1>
-          <div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-container); border-radius:9999px; padding:0.45rem 1rem;">
-            <span class="material-symbols-outlined" style="font-size:1rem; color:var(--secondary);">currency_exchange</span>
-            <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; color:var(--on-surface-variant); text-transform:uppercase; letter-spacing:0.12em;">Points</span>
-            <span style="font-family:'Manrope',sans-serif; font-size:0.875rem; font-weight:800; color:var(--on-surface);">2,450</span>
+          <h1 id="profile-name" style="font-family:'Noto Serif',serif; font-size:clamp(1.75rem,4vw,2.75rem); font-weight:400; color:var(--on-surface); margin:0 0 0.4rem; line-height:1.1;">—</h1>
+          <p id="profile-phone" style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); margin:0 0 0.75rem;"></p>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-container); border-radius:9999px; padding:0.45rem 1rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem; color:var(--secondary);">currency_exchange</span>
+              <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; color:var(--on-surface-variant); text-transform:uppercase; letter-spacing:0.12em;">Points</span>
+              <span id="profile-points" style="font-family:'Manrope',sans-serif; font-size:0.875rem; font-weight:800; color:var(--on-surface);">0</span>
+            </div>
+            <button id="sign-out-btn" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 1.1rem; background:none; border:1px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--on-surface-variant); cursor:pointer;">
+              <span class="material-symbols-outlined" style="font-size:0.95rem;">logout</span> Sign Out
+            </button>
           </div>
         </div>
       </div>
@@ -57,19 +59,27 @@ import Footer from '../components/Footer.astro';
         </a>
 
         <!-- Loyalty Points — featured dark card -->
-        <a href="/orders" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; background:var(--primary); border-radius:1.25rem; padding:1.75rem; min-height:12rem; position:relative; overflow:hidden; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.92'" onmouseout="this.style.opacity='1'">
-          <div style="position:absolute; right:-1rem; bottom:-1rem; opacity:0.12;">
+        <div style="display:flex; flex-direction:column; justify-content:space-between; background:var(--primary); border-radius:1.25rem; padding:1.75rem; min-height:12rem; position:relative; overflow:hidden;">
+          <div style="position:absolute; right:-1rem; bottom:-1rem; opacity:0.10;">
             <span class="material-symbols-outlined" style="font-size:8rem; color:#fff;">wallet</span>
           </div>
           <div style="width:2.75rem; height:2.75rem; background:rgba(255,255,255,0.15); border-radius:0.875rem; display:flex; align-items:center; justify-content:center;">
-            <span class="material-symbols-outlined" style="font-size:1.375rem; color:#fff;">currency_exchange</span>
+            <span class="material-symbols-outlined" style="font-size:1.375rem; color:#fff;">stars</span>
           </div>
           <div>
-            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:#fff; margin-bottom:0.25rem;">Loyalty Points</div>
-            <div style="font-family:'Manrope',sans-serif; font-size:0.78rem; color:rgba(255,255,255,0.75);">2,450 points available</div>
+            <div style="font-family:'Manrope',sans-serif; font-size:1.1rem; font-weight:700; color:#fff; margin-bottom:0.6rem;">Loyalty Points</div>
+            <!-- Points row -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.12); border-radius:0.625rem; padding:0.45rem 0.75rem; margin-bottom:0.4rem;">
+              <span style="font-family:'Manrope',sans-serif; font-size:0.68rem; font-weight:600; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.1em;">Reward Points</span>
+              <span id="loyalty-points-val" style="font-family:'Manrope',sans-serif; font-size:0.88rem; font-weight:800; color:#fff;">0</span>
+            </div>
+            <!-- Wallet row -->
+            <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.12); border-radius:0.625rem; padding:0.45rem 0.75rem;">
+              <span style="font-family:'Manrope',sans-serif; font-size:0.68rem; font-weight:600; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.1em;">Wallet Balance</span>
+              <span id="loyalty-wallet-val" style="font-family:'Manrope',sans-serif; font-size:0.88rem; font-weight:800; color:#fff;">₹0</span>
+            </div>
           </div>
-          <span class="material-symbols-outlined" style="font-size:1.25rem; color:rgba(255,255,255,0.8); align-self:flex-end; transform:rotate(-45deg);">arrow_forward</span>
-        </a>
+        </div>
       </div>
 
       <!-- ── Row 2: 2 cards ── -->
@@ -139,17 +149,55 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  try {
-    const orders   = JSON.parse(localStorage.getItem('gladskin_orders')   || '[]');
-    const wishlist = JSON.parse(localStorage.getItem('gladskin_wishlist') || '[]');
-    const addrs    = JSON.parse(localStorage.getItem('gladskin_addresses')|| '[]');
+  import { subscribeToAuth, logout } from '../lib/auth';
+  import { getUserProfile, listAddresses, listOrders } from '../lib/firestore-data';
 
-    const o = document.getElementById('orders-count-label');
+  function getWishlistCount() {
+    try { return JSON.parse(localStorage.getItem('gladskin_wishlist') || '[]').length; } catch { return 0; }
+  }
+
+  document.getElementById('sign-out-btn')!.addEventListener('click', async () => {
+    await logout();
+    window.location.href = '/';
+  });
+
+  subscribeToAuth(user => {
+    if (!user) {
+      window.location.href = '/login?next=/profile';
+      return;
+    }
+
+    const wCount = getWishlistCount();
     const w = document.getElementById('wishlist-count-label');
-    const a = document.getElementById('addresses-count-label');
+    if (w) w.textContent = `${wCount} Item${wCount !== 1 ? 's' : ''}`;
 
-    if (o) o.textContent = `${orders.length} Order${orders.length !== 1 ? 's' : ''}`;
-    if (w) w.textContent = `${wishlist.length} Item${wishlist.length !== 1 ? 's' : ''}`;
-    if (a) a.textContent = `${addrs.length} Location${addrs.length !== 1 ? 's' : ''} saved`;
-  } catch {}
+    getUserProfile(user.uid).then(profile => {
+      const nameEl      = document.getElementById('profile-name')!;
+      const phoneEl     = document.getElementById('profile-phone')!;
+      const pointsEl    = document.getElementById('profile-points')!;
+      const loyaltyPts  = document.getElementById('loyalty-points-val')!;
+      const loyaltyWal  = document.getElementById('loyalty-wallet-val')!;
+
+      const name = profile?.display_name?.trim() || profile?.phone_number || 'Member';
+      nameEl.textContent  = name;
+      phoneEl.textContent = profile?.phone_number || '';
+
+      const points  = profile?.rewardPoints  ?? 0;
+      const wallet  = profile?.walletBalance ?? 0;
+
+      pointsEl.textContent   = points.toLocaleString('en-IN');
+      loyaltyPts.textContent = points.toLocaleString('en-IN');
+      loyaltyWal.textContent = `₹${wallet.toLocaleString('en-IN')}`;
+    });
+
+    listOrders(user.uid).then(orders => {
+      const o = document.getElementById('orders-count-label');
+      if (o) o.textContent = `${orders.length} Order${orders.length !== 1 ? 's' : ''}`;
+    }).catch(() => {});
+
+    listAddresses(user.uid).then(addrs => {
+      const a = document.getElementById('addresses-count-label');
+      if (a) a.textContent = `${addrs.length} Location${addrs.length !== 1 ? 's' : ''} saved`;
+    }).catch(() => {});
+  });
 </script>

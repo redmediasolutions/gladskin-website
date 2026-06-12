@@ -12,28 +12,38 @@ const products = await getProducts();
   <Header />
 
   <main>
-    <!-- Hero -->
-    <section style="position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; background:var(--surface); padding-top:5rem;">
-      <div style="width:100%; max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); display:grid; gap:2rem; align-items:center;" class="hero-grid">
-        <div style="z-index:10;">
-          <h1 class="font-headline reveal-on-scroll" style="font-size:clamp(3rem,8vw,6rem); color:var(--on-surface); line-height:1.1; letter-spacing:-0.02em; margin:0 0 2rem;">
-            The Art of <br/>
-            <span style="font-style:italic; font-weight:300; color:var(--primary);">Botanical</span> <br/>
-            Luxury
+    <!-- Hero — full viewport height, image fills right column -->
+    <section class="hero-section" style="background:var(--surface); overflow:hidden;">
+      <div class="hero-grid">
+
+        <!-- Left: text -->
+        <div class="hero-text">
+          <h1 class="font-headline" style="font-size:clamp(2.25rem,4.5vw,4rem); color:var(--on-surface); line-height:1.05; letter-spacing:-0.02em; margin:0 0 1.25rem;">
+            The<br/><span style="color:var(--primary);">Microbiome</span><br/>Revolution
           </h1>
-          <p class="font-body reveal-on-scroll" style="font-size:1.125rem; color:var(--on-surface-variant); max-width:28rem; line-height:1.8; margin:0 0 2.5rem; transition-delay:200ms;">
-            Harnessing the rare cellular intelligence of the orchid to transform your skin's nocturnal architecture.
+          <p style="font-family:'Manrope',sans-serif; font-size:clamp(0.875rem,1.2vw,1rem); color:var(--on-surface-variant); line-height:1.75; margin:0 0 2rem; max-width:24rem;">
+            Science-backed solutions for eczema-prone skin.
+            Restoring balance, one drop at a time.
           </p>
-          <div class="reveal-on-scroll" style="transition-delay:400ms;">
-            <a href="/collection" style="display:inline-block; padding:1.25rem 2.5rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:var(--on-primary); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; box-shadow:0 8px 24px rgba(111,5,98,0.2); transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(111,5,98,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 8px 24px rgba(111,5,98,0.2)'">
-              Discover the Essence
+          <div>
+            <a href="/collection"
+              style="display:inline-block; padding:0.9rem 1.875rem; background:#8C2F67; color:#fff; border-radius:0.875rem; font-family:'Manrope',sans-serif; font-weight:600; font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; text-decoration:none; transition:background 0.2s, transform 0.2s;"
+              onmouseover="this.style.background='#6F0562';this.style.transform='translateY(-2px)'"
+              onmouseout="this.style.background='#8C2F67';this.style.transform=''">
+              EXPLORE COLLECTION
             </a>
           </div>
         </div>
-        <div class="hero-image reveal-on-scroll" style="position:relative; display:flex; align-items:center; justify-content:center; min-height:400px; transition-delay:300ms;">
-          <div style="position:absolute; right:-5rem; top:50%; transform:translateY(-50%); width:120%; height:80%; background:var(--surface-container-low); border-radius:10rem; rotate:-6deg; z-index:0;"></div>
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy6TUydg_UOX33vBqvljADPecjE0mOeZiaH9vHgcTmiyzcVp3qV68mxPyliuXw9CizaQvukBXyvnIDwfVk4-Prux5Dvq8W6_WXMqE2Les4Hwd_ny0ifgT_tY7iuWS_nQyVMvwGd3SUVHZTAl439oeQXlR46COOMq4gJJ4U95iMxdW8a5QUiRts-hGnqUzCD_aitTD1gcD0JO3n4ZIJN-E1X59B8lclzO7kK75Bh_G8pfbvYJPVBzn0JZcF9Gjhi470NJSislY_qWg" alt="Orchid Dew Serum" style="position:relative; z-index:10; width:100%; max-width:36rem; height:auto; object-fit:cover; border-radius:0.75rem; box-shadow:0 25px 60px rgba(0,0,0,0.15);" loading="eager"/>
+
+        <!-- Right: image fills column height -->
+        <div class="hero-image">
+          <img
+            src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85"
+            alt="Gladskin skincare"
+            loading="eager"
+          />
         </div>
+
       </div>
     </section>
 
@@ -57,39 +67,55 @@ const products = await getProducts();
       </div>
     </section>
 
-    <!-- Brand Story -->
-    <section style="padding:clamp(3.5rem,10vw,10rem) 0; background:var(--surface);">
-      <div style="max-width:56rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); text-align:center;">
-        <span class="reveal-on-scroll" style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.4em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:2rem;">Our Philosophy</span>
-        <h2 class="font-headline reveal-on-scroll" style="font-size:clamp(2rem,5vw,3.5rem); color:var(--on-surface); line-height:1.2; margin:0 0 4rem;">
-          Where <span style="font-style:italic;">Botanical Wisdom</span> meets<br/>Scientific Precision.
-        </h2>
-        <div class="philosophy-grid" style="display:grid; gap:4rem; text-align:left;">
-          <div class="reveal-on-scroll" style="transition-delay:200ms;">
-            <h4 class="font-headline" style="font-size:1.5rem; color:var(--primary); margin:0 0 1rem;">The Rare Orchid</h4>
-            <p class="font-body" style="color:var(--on-surface-variant); line-height:1.8; font-size:1.125rem; margin:0;">We source the rarest Vanda orchids from high-altitude sanctuaries. These resilient blooms contain a unique longevity molecule that mimics the skin's natural repair cycle, providing unprecedented cellular rejuvenation.</p>
-          </div>
-          <div class="reveal-on-scroll" style="transition-delay:400ms;">
-            <h4 class="font-headline" style="font-size:1.5rem; color:var(--primary); margin:0 0 1rem;">Molecular Integrity</h4>
-            <p class="font-body" style="color:var(--on-surface-variant); line-height:1.8; font-size:1.125rem; margin:0;">Our patented extraction process preserves the plant's vital essence at the molecular level. Every drop is a symphony of pure bio-actives, formulated without synthetic fillers to ensure profound efficacy.</p>
-          </div>
+    <!-- Why Gladskin -->
+    <section class="why-section">
+      <div class="why-inner">
+        <div class="why-header">
+          <span class="why-eyebrow">Why Gladskin</span>
+          <h2 class="font-headline why-title">Skincare that actually works.</h2>
+        </div>
+        <div class="why-pillars">
+          {[
+            { icon: 'science',        title: 'Dermat Tested',     body: 'Every formula is clinically validated for safety and efficacy before it reaches your skin.' },
+            { icon: 'eco',            title: 'Natural Actives',   body: 'Plant-derived ingredients chosen for proven results — no fillers, no compromise.' },
+            { icon: 'price_check',    title: 'Honest Pricing',    body: 'Premium skincare at prices that make daily care sustainable for everyone.' },
+            { icon: 'diversity_3',    title: 'All Skin Types',    body: 'Formulated to work across skin tones, types, and concerns — inclusive by design.' },
+          ].map(p => (
+            <div class="why-pillar">
+              <div class="why-icon">
+                <span class="material-symbols-outlined">{p.icon}</span>
+              </div>
+              <div class="why-pillar-title">{p.title}</div>
+              <p class="why-pillar-body">{p.body}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
 
     <!-- The Ritual -->
-    <section style="position:relative; min-height:51rem; display:flex; align-items:center; background:var(--surface-container-high); overflow:hidden;">
-      <div style="position:absolute; inset:0; z-index:0;">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYEhTnBmm3NRFulaETPdVP_ft8IPxHq7raXnCbJuMoSW8bHvZIlyVO6R2ci18UKj-jORbsF5w6dZFJwofkdADmeW_nIQe6Tjw6i5s6HfQRHNg4dh5JQQoGBZWpx6MIyOWGw6a-KiS4SJiERcLXLr1uPJoZxXEK6lVuPy0sJoHqp9wZs3lcy5SezH5z8gbZCcq7SKfZyyBecqlEcWp4CP6UnfXKjl0OgAZj6gMc3fGqguy0UYXcmoifQuDS-t3TE1OpiiCUMbAHtmg" alt="Skincare ritual" style="width:100%; height:100%; object-fit:cover; opacity:0.6;"/>
-      </div>
-      <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); position:relative; z-index:10; width:100%;">
-        <div class="reveal-on-scroll ritual-card" style="max-width:32rem; background:rgba(252,249,249,0.85); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-radius:0.75rem; box-shadow:0 25px 60px rgba(0,0,0,0.12);">
-          <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.4em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1.5rem;">Guided Transformation</span>
-          <h2 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.5rem); color:var(--on-surface); margin:0 0 2rem; line-height:1.2;">Elevate Your Daily Ritual</h2>
-          <p class="font-body" style="color:var(--on-surface-variant); font-size:1.125rem; line-height:1.8; margin:0 0 2.5rem;">More than just application; it's a sensory conversation with your skin. Discover our morning and evening protocols designed for maximal absorption and mindful presence.</p>
-          <a href="/ritual" style="display:inline-block; padding:1.25rem 3rem; background:var(--on-surface); color:var(--surface); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; transition:background 0.3s;" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='var(--on-surface)'">
-            Start Your Ritual
-          </a>
+    <section class="ritual-section">
+      <div class="ritual-inner">
+        <div class="ritual-text">
+          <span class="why-eyebrow">Your Daily Ritual</span>
+          <h2 class="font-headline ritual-title">A routine worth keeping.</h2>
+          <p class="ritual-body">Simple, consistent steps that deliver visible results. Gladskin's skincare ritual is designed to fit into your day — morning or night — without overwhelm.</p>
+          <a href="/ritual" class="ritual-cta">Explore the Ritual</a>
+        </div>
+        <div class="ritual-steps">
+          {[
+            { step: '01', label: 'Cleanse',   desc: 'Start with a clean canvas.' },
+            { step: '02', label: 'Treat',     desc: 'Active ingredients, targeted results.' },
+            { step: '03', label: 'Moisturise',desc: 'Lock in hydration, protect the barrier.' },
+          ].map(s => (
+            <div class="ritual-step">
+              <span class="ritual-step-num">{s.step}</span>
+              <div>
+                <div class="ritual-step-label">{s.label}</div>
+                <div class="ritual-step-desc">{s.desc}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -99,17 +125,220 @@ const products = await getProducts();
 </BaseLayout>
 
 <style>
-  .hero-grid { grid-template-columns: 1fr; }
-  .products-grid { display:grid; grid-template-columns:1fr; gap:3rem; }
-  .philosophy-grid { grid-template-columns: 1fr; }
-  .ritual-card { padding: 3rem; }
+  /* ── Hero ── */
+  .hero-section {
+    height: calc(100vh - 3.25rem);
+    min-height: 480px;
+    max-height: 900px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: 100%;
+  }
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem clamp(1.25rem, 5vw, 4rem);
+    order: 1;
+  }
+  .hero-image {
+    order: 0;
+    overflow: hidden;
+    min-height: 280px;
+    background: #2a2830;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 0 1.5rem 1.5rem;
+  }
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
 
   @media (min-width: 768px) {
-    .hero-grid { grid-template-columns: 5fr 7fr; }
+    .hero-grid  { grid-template-columns: 1fr 1fr; }
+    .hero-text  { order: 0; padding: 0 clamp(2rem, 5vw, 5rem); }
+    .hero-image { order: 1; border-radius: 1.5rem; }
+  }
+
+  /* Slide-in animations */
+  @keyframes slideLeft {
+    from { opacity: 0; transform: translateX(-48px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(48px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .hero-text  { animation: slideLeft  0.85s cubic-bezier(0.22,1,0.36,1) both; }
+  .hero-image { animation: slideRight 0.85s cubic-bezier(0.22,1,0.36,1) 0.15s both; }
+
+  /* ── Products grid ── */
+  .products-grid { display:grid; grid-template-columns:1fr; gap:1.5rem; }
+  @media (min-width: 768px) {
     .collection-header { flex-direction:row !important; align-items:flex-end !important; justify-content:space-between !important; }
     .products-grid { grid-template-columns: repeat(3,1fr); }
-    .philosophy-grid { grid-template-columns: 1fr 1fr; }
-    .ritual-card { padding: 4rem 5rem !important; }
+  }
+
+  /* ── Why Gladskin ── */
+  .why-section {
+    background: var(--surface);
+    padding: 3rem 0;
+    border-top: 1px solid var(--outline-variant);
+  }
+  .why-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem,4vw,3rem);
+  }
+  .why-header {
+    margin-bottom: 2rem;
+  }
+  .why-eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .why-title {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    color: var(--on-surface);
+    margin: 0;
+    font-weight: 400;
+  }
+  .why-pillars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .why-pillars { grid-template-columns: repeat(4, 1fr); }
+  }
+  .why-pillar {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .why-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    background: linear-gradient(135deg, rgba(111,5,98,0.1), rgba(111,5,98,0.05));
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+  }
+  .why-icon .material-symbols-outlined { font-size: 1.1rem; color: var(--primary); }
+  .why-pillar-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--on-surface);
+  }
+  .why-pillar-body {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.76rem;
+    color: var(--on-surface-variant);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ── Ritual ── */
+  .ritual-section {
+    background: linear-gradient(135deg, #3a0035 0%, #6f0562 60%, #8c2f67 100%);
+    padding: 3rem 0;
+  }
+  .ritual-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem,4vw,3rem);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .ritual-inner { grid-template-columns: 1fr 1fr; gap: 4rem; }
+  }
+  .ritual-title {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    color: #fff;
+    margin: 0.4rem 0 0.875rem;
+    font-weight: 400;
+  }
+  .ritual-body {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.75;
+    margin: 0 0 1.5rem;
+  }
+  .ritual-section .why-eyebrow { color: rgba(255,172,231,0.9); }
+  .ritual-cta {
+    display: inline-block;
+    padding: 0.75rem 1.75rem;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+    backdrop-filter: blur(8px);
+  }
+  .ritual-cta:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.6); }
+  .ritual-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .ritual-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 0.875rem;
+    padding: 1rem 1.25rem;
+    backdrop-filter: blur(8px);
+  }
+  .ritual-step-num {
+    font-family: 'Noto Serif', serif;
+    font-size: 1.25rem;
+    color: rgba(255,172,231,0.8);
+    font-weight: 400;
+    flex-shrink: 0;
+    min-width: 2rem;
+  }
+  .ritual-step-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.15rem;
+  }
+  .ritual-step-desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.6);
   }
 </style>
 

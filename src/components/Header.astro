@@ -1,7 +1,7 @@
 ---
 const pathname = Astro.url.pathname;
 const navLinks = [
-  { label: 'Atelier',    href: '/',           active: pathname === '/' },
+  { label: 'Home',       href: '/',           active: pathname === '/' },
   { label: 'Collection', href: '/collection', active: pathname.startsWith('/collection') || pathname.startsWith('/products') },
   { label: 'Ritual',     href: '/ritual',     active: pathname === '/ritual' },
 ];
@@ -30,12 +30,14 @@ const profileActive = pathname === '/profile';
     </div>
 
     <!-- Logo — absolutely centered -->
-    <a href="/" class="header-logo logo-shimmer">Gladskin</a>
+    <a href="/" class="header-logo">
+      <img src="/app-header.svg" alt="Gladskin" class="header-logo-img" />
+    </a>
 
     <!-- Right: profile (desktop) + cart -->
     <div class="header-right">
-      <a href="/profile" class={`nav-link desktop-link ${profileActive ? 'active' : ''}`}>
-        Profile
+      <a id="auth-link-desktop" href="/login?next=/profile" class={`nav-link desktop-link ${profileActive ? 'active' : ''}`}>
+        Sign In
       </a>
       <a href="/search" aria-label="Search" style="color:var(--primary); display:flex; align-items:center;" class="desktop-link">
         <span class="material-symbols-outlined" style="font-size:1.4rem;">search</span>
@@ -54,7 +56,7 @@ const profileActive = pathname === '/profile';
         {link.label}
       </a>
     ))}
-    <a href="/profile" class={`mobile-nav-link ${profileActive ? 'active' : ''}`}>Profile</a>
+    <a id="auth-link-mobile" href="/login?next=/profile" class={`mobile-nav-link ${profileActive ? 'active' : ''}`}>Sign In</a>
   </div>
 </header>
 
@@ -86,16 +88,17 @@ const profileActive = pathname === '/profile';
 
   /* ── Logo absolutely centered ── */
   .header-logo {
-    font-family: 'Noto Serif', serif;
-    font-size: 1.4rem;
-    font-weight: 600;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
     text-decoration: none;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+  }
+  .header-logo-img {
+    height: 28px;
+    width: auto;
+    display: block;
   }
 
   /* ── Left / Right slots ── */
@@ -217,6 +220,9 @@ const profileActive = pathname === '/profile';
 </style>
 
 <script>
+  import { subscribeToAuth } from '../lib/auth';
+  import { subscribeToCartCount } from '../lib/firestore-data';
+
   const header  = document.getElementById('main-header')!;
   const btn     = document.getElementById('mobile-menu-btn')!;
   const menu    = document.getElementById('mobile-menu')!;
@@ -237,16 +243,35 @@ const profileActive = pathname === '/profile';
     });
   });
 
-  /* Seed cart count from localStorage on every page load */
-  function refreshCartCount() {
-    try {
-      const cart = JSON.parse(localStorage.getItem('gladskin_cart') || '[]');
-      const total = cart.reduce((s: number, c: any) => s + (c.quantity || 1), 0);
-      const el = document.getElementById('cart-count');
-      if (el) el.textContent = String(total);
-    } catch {}
-  }
-  refreshCartCount();
+  /* Toggle Sign In ↔ Profile and live cart badge based on auth state */
+  const authLinks = [
+    document.getElementById('auth-link-desktop'),
+    document.getElementById('auth-link-mobile'),
+  ].filter((el): el is HTMLAnchorElement => el !== null);
+
+  let unsubscribeCartCount: (() => void) | null = null;
+
+  subscribeToAuth(user => {
+    authLinks.forEach(link => {
+      if (user) {
+        link.textContent = 'Profile';
+        link.href = '/profile';
+      } else {
+        link.textContent = 'Sign In';
+        link.href = '/login?next=/profile';
+      }
+    });
+
+    if (unsubscribeCartCount) { unsubscribeCartCount(); unsubscribeCartCount = null; }
+    const countEl = document.getElementById('cart-count');
+    if (user) {
+      unsubscribeCartCount = subscribeToCartCount(user.uid, total => {
+        if (countEl) countEl.textContent = String(total);
+      });
+    } else if (countEl) {
+      countEl.textContent = '0';
+    }
+  });
 
   /* Scroll effect */
   window.addEventListener('scroll', () => {

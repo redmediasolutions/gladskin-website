@@ -10,147 +10,580 @@ const product = await getProductBySlug(slug!);
 if (!product) {
   return Astro.redirect('/collection');
 }
+
+const discountPercent = product.originalPrice && product.originalPrice > product.price
+  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  : null;
 ---
 
 <BaseLayout title={`${product.name} | Gladskin`} description={`Discover ${product.name} – ${product.category}`}>
   <Header />
-  <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface);">
-    <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem) 2rem;">
-      <a href="/collection" style="display:inline-flex; align-items:center; gap:0.5rem; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface-variant); text-decoration:none; margin-bottom:3rem; transition:color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--on-surface-variant)'">
-        <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_back</span>
-        Back to Collection
+  <main class="pd-main">
+
+    <!-- Breadcrumb -->
+    <div class="pd-breadcrumb">
+      <a href="/collection" class="pd-back">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Collection
       </a>
+      <span class="pd-breadcrumb-sep">/</span>
+      <span class="pd-breadcrumb-current">{product.name}</span>
+    </div>
 
-      <div class="product-detail-grid">
-        <!-- Image -->
-        <div style="border-radius:1rem; overflow:hidden; background:var(--surface-container); aspect-ratio:3/4; max-height:700px;">
-          <img src={product.image} alt={product.imageAlt} style="width:100%; height:100%; object-fit:cover;" />
-        </div>
+    <div class="pd-grid">
 
-        <!-- Info -->
-        <div style="display:flex; flex-direction:column; justify-content:center; gap:2rem;">
-          <div>
-            <span style="background:rgba(201,240,137,0.3); color:var(--on-tertiary-fixed-variant); padding:0.25rem 0.75rem; border-radius:9999px; font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; font-family:'Manrope',sans-serif;">{product.category}</span>
-          </div>
-          <h1 class="font-headline" style="font-size:clamp(2rem,4vw,3.5rem); color:var(--on-surface); margin:0; line-height:1.1;">{product.name}</h1>
-          <p style="font-family:'Manrope',sans-serif; font-size:2rem; color:var(--primary); font-weight:300; margin:0;">₹{product.price.toFixed(2)}</p>
-          <p class="font-body" style="color:var(--on-surface-variant); line-height:1.8; font-size:1.1rem; margin:0;">
-            {product.description || 'A rare botanical formulation crafted from the finest Vanda orchid extracts. Each drop delivers concentrated cellular intelligence to transform your skin\'s natural repair architecture.'}
-          </p>
-
-          <!-- Stock badge -->
-          {product.inStock === false && (
-            <div style="display:inline-flex; align-items:center; gap:0.5rem; background:rgba(198,40,40,0.08); color:#c62828; border-radius:9999px; padding:0.4rem 1rem; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">
-              <span class="material-symbols-outlined" style="font-size:1rem;">cancel</span> Out of Stock
-            </div>
+      <!-- ── Image column ── -->
+      <div class="pd-image-col">
+        <div class="pd-image-wrap">
+          <img src={product.image} alt={product.imageAlt || product.name} class="pd-image" />
+          {discountPercent !== null && (
+            <span class="pd-discount-badge">{discountPercent}% OFF</span>
           )}
-
-          <!-- Add to Cart -->
-          <div style="display:flex; flex-direction:column; gap:1rem;">
-            <div style="display:flex; align-items:center; gap:1rem;">
-              <label style="font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; color:var(--on-surface-variant);">Quantity</label>
-              <div style="display:flex; align-items:center; border:1px solid var(--outline-variant); border-radius:9999px; overflow:hidden;">
-                <button id="qty-minus" style="padding:0.5rem 1rem; background:none; border:none; cursor:pointer; font-size:1.25rem; color:var(--on-surface);">−</button>
-                <span id="qty-display" style="padding:0.5rem 1rem; font-family:'Manrope',sans-serif; font-weight:600; min-width:2.5rem; text-align:center;">1</span>
-                <button id="qty-plus" style="padding:0.5rem 1rem; background:none; border:none; cursor:pointer; font-size:1.25rem; color:var(--on-surface);">+</button>
-              </div>
-            </div>
-            <button
-              id="add-to-cart"
-              data-product-id={product.id}
-              style="padding:1.25rem 2.5rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:var(--on-primary); border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; box-shadow:0 8px 24px rgba(111,5,98,0.2);"
-              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(111,5,98,0.3)'"
-              onmouseout="this.style.transform='';this.style.boxShadow='0 8px 24px rgba(111,5,98,0.2)'"
-            >
-              Add to Bag
-            </button>
-            <button
-              id="add-to-wishlist"
-              data-product-id={product.id}
-              data-product={JSON.stringify({ id: product.id, name: product.name, price: product.price, image: product.image, imageAlt: product.imageAlt, slug: product.slug, category: product.category })}
-              style="padding:1.25rem 2.5rem; background:transparent; color:var(--primary); border:1.5px solid var(--primary); border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:0.5rem;"
-              onmouseover="if(!this.classList.contains('saved')){this.style.background='rgba(111,5,98,0.06)'}"
-              onmouseout="if(!this.classList.contains('saved')){this.style.background='transparent'}"
-            >
-              <span class="material-symbols-outlined" id="wishlist-icon" style="font-size:1.1rem;">favorite_border</span>
-              <span id="wishlist-label">Save to Wishlist</span>
-            </button>
-          </div>
-
-          <!-- Features -->
-          <div style="border-top:1px solid var(--outline-variant); padding-top:2rem; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-            {[
-              { icon: 'eco', label: 'Botanical Certified' },
-              { icon: 'science', label: 'Lab Tested' },
-              { icon: 'local_shipping', label: 'Free Shipping' },
-              { icon: 'recycling', label: 'Eco Packaging' },
-            ].map(f => (
-              <div style="display:flex; align-items:center; gap:0.75rem;">
-                <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.25rem;">{f.icon}</span>
-                <span style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); font-weight:600;">{f.label}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
-      <!-- Product Highlights -->
-      {product.highlights && product.highlights.length > 0 && (
-        <div style="margin-top:3rem;">
-          <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase; color:var(--secondary); margin:0 0 1.25rem;">Why It Works</h2>
-          <div class="highlights-grid">
-            {product.highlights.map(h => (
-              <div style="background:var(--surface-container-low); border-radius:1rem; padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem;">
-                <div style="width:2.5rem; height:2.5rem; background:linear-gradient(135deg,var(--primary),var(--secondary)); border-radius:0.75rem; display:flex; align-items:center; justify-content:center;">
-                  <span class="material-symbols-outlined" style="font-size:1.25rem; color:#fff;">{h.icon}</span>
+
+      <!-- ── Info column ── -->
+      <div class="pd-info-col">
+
+        <!-- Category -->
+        <span class="pd-category">{product.category}</span>
+
+        <!-- Name -->
+        <h1 class="pd-name font-headline">{product.name}</h1>
+
+        <!-- Price -->
+        <div class="pd-price-row">
+          <span class="pd-price">₹{product.price.toFixed(0)}</span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span class="pd-price-original">₹{product.originalPrice.toFixed(0)}</span>
+          )}
+        </div>
+
+        <!-- Divider -->
+        <div class="pd-divider"></div>
+
+        <!-- Description -->
+        <p class="pd-desc">
+          {product.description || 'A rare botanical formulation crafted from the finest extracts. Each application delivers concentrated cellular intelligence to transform your skin\'s natural repair architecture.'}
+        </p>
+
+        <!-- Out of stock -->
+        {product.inStock === false && (
+          <div class="pd-out-of-stock">
+            <span class="material-symbols-outlined">cancel</span>
+            Out of Stock
+          </div>
+        )}
+
+        <!-- Quantity + CTA -->
+        <div class="pd-actions">
+          <div class="pd-qty-row">
+            <span class="pd-qty-label">Qty</span>
+            <div class="pd-qty-ctrl">
+              <button id="qty-minus" class="pd-qty-btn">−</button>
+              <span id="qty-display" class="pd-qty-val">1</span>
+              <button id="qty-plus" class="pd-qty-btn">+</button>
+            </div>
+          </div>
+
+          <button id="add-to-cart" class="pd-btn-primary" data-product-id={product.id}>
+            <span class="material-symbols-outlined">shopping_bag</span>
+            Add to Bag
+          </button>
+
+          <button
+            id="add-to-wishlist"
+            class="pd-btn-secondary"
+            data-product-id={product.id}
+            data-product={JSON.stringify({ id: product.id, name: product.name, price: product.price, originalPrice: product.originalPrice, image: product.image, imageAlt: product.imageAlt, slug: product.slug, category: product.category })}
+          >
+            <span class="material-symbols-outlined" id="wishlist-icon">favorite_border</span>
+            <span id="wishlist-label">Save to Wishlist</span>
+          </button>
+        </div>
+
+        <!-- Trust pills -->
+        <div class="pd-trust">
+          {[
+            { icon: 'eco',            label: 'Botanical' },
+            { icon: 'science',        label: 'Lab Tested' },
+            { icon: 'local_shipping', label: 'Free Delivery' },
+            { icon: 'recycling',      label: 'Eco Pack' },
+          ].map(f => (
+            <div class="pd-trust-pill">
+              <span class="material-symbols-outlined">{f.icon}</span>
+              {f.label}
+            </div>
+          ))}
+        </div>
+
+        <!-- Tabs -->
+        {(product.howItWorks || product.composition || product.sideEffects) && (
+          <div class="pd-tabs-wrap">
+            <div class="pd-tabs">
+              {product.howItWorks  && <button class="tab-btn active" data-tab="how">How It Works</button>}
+              {product.composition && <button class="tab-btn" data-tab="comp">Ingredients</button>}
+              {product.sideEffects && <button class="tab-btn" data-tab="side">Safety</button>}
+            </div>
+            {product.howItWorks  && <div class="tab-panel pd-tab-body" data-panel="how"  style="display:block">{product.howItWorks}</div>}
+            {product.composition && <div class="tab-panel pd-tab-body" data-panel="comp" style="display:none">{product.composition}</div>}
+            {product.sideEffects && (
+              <div class="tab-panel" data-panel="side" style="display:none">
+                <div class="pd-safety">
+                  <span class="material-symbols-outlined">info</span>
+                  <p class="pd-tab-body" style="margin:0">{product.sideEffects}</p>
                 </div>
-                <div style="font-family:'Manrope',sans-serif; font-size:0.875rem; font-weight:700; color:var(--on-surface);">{h.title}</div>
-                <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); line-height:1.6;">{h.description}</div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
+        )}
 
-      <!-- Ingredient / How It Works tabs -->
-      {(product.composition || product.howItWorks || product.sideEffects) && (
-        <div style="margin-top:3rem; border-top:1px solid var(--outline-variant); padding-top:2rem;">
-          <!-- Tab buttons -->
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
-            {product.howItWorks  && <button class="tab-btn active" data-tab="how"   style="padding:0.5rem 1.25rem; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border:1.5px solid var(--primary); background:var(--primary); color:#fff; transition:all 0.2s;">How It Works</button>}
-            {product.composition && <button class="tab-btn"        data-tab="comp"  style="padding:0.5rem 1.25rem; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border:1.5px solid var(--outline-variant); background:transparent; color:var(--on-surface-variant); transition:all 0.2s;">Ingredients</button>}
-            {product.sideEffects && <button class="tab-btn"        data-tab="side"  style="padding:0.5rem 1.25rem; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border:1.5px solid var(--outline-variant); background:transparent; color:var(--on-surface-variant); transition:all 0.2s;">Safety Info</button>}
-          </div>
+      </div><!-- /pd-info-col -->
+    </div><!-- /pd-grid -->
 
-          <!-- Tab panels -->
-          {product.howItWorks  && <div class="tab-panel" data-panel="how"  style="display:block;"><p style="font-family:'Manrope',sans-serif; font-size:0.95rem; color:var(--on-surface-variant); line-height:1.8; margin:0;">{product.howItWorks}</p></div>}
-          {product.composition && <div class="tab-panel" data-panel="comp" style="display:none;"><p style="font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant); line-height:1.8; margin:0;">{product.composition}</p></div>}
-          {product.sideEffects && <div class="tab-panel" data-panel="side" style="display:none;"><div style="display:flex; gap:0.75rem; background:rgba(201,150,12,0.08); border-radius:0.75rem; padding:1rem;"><span class="material-symbols-outlined" style="color:#c9960c; flex-shrink:0;">info</span><p style="font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant); line-height:1.8; margin:0;">{product.sideEffects}</p></div></div>}
+    <!-- Highlights -->
+    {product.highlights && product.highlights.length > 0 && (
+      <div class="pd-highlights">
+        <p class="pd-section-eyebrow">Why It Works</p>
+        <div class="pd-highlights-grid">
+          {product.highlights.map(h => (
+            <div class="pd-highlight-card">
+              <div class="pd-highlight-icon">
+                <span class="material-symbols-outlined">{h.icon}</span>
+              </div>
+              <div class="pd-highlight-title">{h.title}</div>
+              <div class="pd-highlight-body">{h.description}</div>
+            </div>
+          ))}
         </div>
-      )}
-    </div>
+      </div>
+    )}
+
   </main>
   <Footer />
 </BaseLayout>
 
 <style>
-  .product-detail-grid { display:grid; grid-template-columns:1fr; gap:3rem; }
-  @media (min-width:768px) { .product-detail-grid { grid-template-columns:1fr 1fr; } }
+  /* ── Page shell ── */
+  .pd-main {
+    padding-top: 3.25rem;
+    min-height: 100vh;
+    background: var(--surface);
+  }
 
-  .highlights-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-  @media (min-width:768px) { .highlights-grid { grid-template-columns: repeat(4,1fr); } }
-  @media (max-width:400px) { .highlights-grid { grid-template-columns: 1fr; } }
+  /* ── Breadcrumb ── */
+  .pd-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem clamp(1.25rem, 4vw, 3rem);
+    max-width: 80rem;
+    margin: 0 auto;
+  }
+  .pd-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .pd-back:hover { color: var(--primary); }
+  .pd-back .material-symbols-outlined { font-size: 0.95rem; }
+  .pd-breadcrumb-sep {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    color: var(--outline-variant);
+  }
+  .pd-breadcrumb-current {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 20rem;
+  }
+
+  /* ── Two-column grid ── */
+  .pd-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 3rem) 3rem;
+  }
+  @media (min-width: 768px) {
+    .pd-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+  }
+
+  /* ── Image column ── */
+  .pd-image-col {
+    position: sticky;
+    top: 5rem;
+  }
+  .pd-image-wrap {
+    position: relative;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: linear-gradient(145deg, #fdf6fb 0%, #f5eef8 100%);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pd-image {
+    width: 88%;
+    height: 88%;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pd-image-wrap:hover .pd-image { transform: scale(1.04); }
+  .pd-discount-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #1a1a1a;
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+  }
+
+  /* ── Info column ── */
+  .pd-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 0.5rem;
+  }
+  @media (max-width: 767px) {
+    .pd-info-col { padding-top: 2rem; }
+    .pd-image-col { position: static; }
+  }
+
+  /* Category */
+  .pd-category {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--primary);
+    display: block;
+  }
+
+  /* Name */
+  .pd-name {
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    color: var(--on-surface);
+    margin: 0;
+    line-height: 1.15;
+    font-weight: 400;
+  }
+
+  /* Price */
+  .pd-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .pd-price {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 300;
+    color: var(--on-surface);
+    letter-spacing: -0.02em;
+  }
+  .pd-price-original {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1rem;
+    color: var(--on-surface-variant);
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+
+  .pd-divider {
+    height: 1px;
+    background: var(--outline-variant);
+  }
+
+  /* Description */
+  .pd-desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.92rem;
+    color: var(--on-surface-variant);
+    line-height: 1.85;
+    margin: 0;
+  }
+
+  /* Out of stock */
+  .pd-out-of-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(198, 40, 40, 0.07);
+    color: #c62828;
+    border-radius: 9999px;
+    padding: 0.4rem 1rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .pd-out-of-stock .material-symbols-outlined { font-size: 0.95rem; }
+
+  /* ── Actions ── */
+  .pd-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .pd-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .pd-qty-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+  }
+  .pd-qty-ctrl {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--outline-variant);
+    border-radius: 9999px;
+    overflow: hidden;
+    background: var(--surface-container-lowest);
+  }
+  .pd-qty-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--on-surface);
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pd-qty-btn:hover { background: rgba(111, 5, 98, 0.06); }
+  .pd-qty-val {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    min-width: 2.5rem;
+    text-align: center;
+    color: var(--on-surface);
+  }
+
+  .pd-btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 6px 20px rgba(111, 5, 98, 0.22);
+  }
+  .pd-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(111, 5, 98, 0.32);
+  }
+  .pd-btn-primary .material-symbols-outlined { font-size: 1.05rem; }
+
+  .pd-btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.9rem 2rem;
+    background: transparent;
+    color: var(--primary);
+    border: 1.5px solid rgba(111, 5, 98, 0.25);
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pd-btn-secondary:hover { background: rgba(111, 5, 98, 0.05); border-color: var(--primary); }
+  .pd-btn-secondary .material-symbols-outlined { font-size: 1.05rem; }
+
+  /* ── Trust pills ── */
+  .pd-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pd-trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    border-radius: 9999px;
+    padding: 0.3rem 0.75rem;
+  }
+  .pd-trust-pill .material-symbols-outlined { font-size: 0.85rem; color: var(--primary); }
+
+  /* ── Tabs ── */
+  .pd-tabs-wrap {
+    border: 1px solid var(--outline-variant);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .pd-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--outline-variant);
+    background: var(--surface-container-lowest);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    transition: all 0.18s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active,
+  .tab-btn:hover { color: var(--primary); }
+  .tab-btn.active { border-bottom-color: var(--primary); background: var(--surface); }
+  .pd-tab-body {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.85rem;
+    color: var(--on-surface-variant);
+    line-height: 1.8;
+    padding: 1.25rem;
+  }
+  .pd-safety {
+    display: flex;
+    gap: 0.75rem;
+    background: rgba(201, 150, 12, 0.07);
+    padding: 1.25rem;
+  }
+  .pd-safety .material-symbols-outlined { color: #c9960c; flex-shrink: 0; }
+
+  /* ── Highlights ── */
+  .pd-highlights {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 3rem clamp(1.25rem, 4vw, 3rem);
+    border-top: 1px solid var(--outline-variant);
+  }
+  .pd-section-eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin: 0 0 1.5rem;
+  }
+  .pd-highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (min-width: 768px) {
+    .pd-highlights-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .pd-highlight-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .pd-highlight-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pd-highlight-icon .material-symbols-outlined { font-size: 1.1rem; color: #fff; }
+  .pd-highlight-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--on-surface);
+  }
+  .pd-highlight-body {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.76rem;
+    color: var(--on-surface-variant);
+    line-height: 1.6;
+  }
 </style>
 
 <script>
+  import { subscribeToAuth } from '../../lib/auth';
+  import { addToCart } from '../../lib/firestore-data';
+
   const WISHLIST_KEY = 'gladskin_wishlist';
-  const CART_KEY     = 'gladskin_cart';
+  const productData = JSON.parse(document.getElementById('add-to-wishlist')!.dataset.product!);
 
   function getWishlist() {
     try { return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'); } catch { return []; }
   }
-  function getCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
-  }
+
+  let currentUid: string | null = null;
+  subscribeToAuth(user => { currentUid = user ? user.uid : null; });
 
   function showToast(msg: string) {
     let t = document.getElementById('product-toast');
@@ -172,17 +605,12 @@ if (!product) {
   document.getElementById('qty-minus')?.addEventListener('click', () => { if (qty > 1) { qty--; display.textContent = String(qty); } });
   document.getElementById('qty-plus')?.addEventListener('click', () => { qty++; display.textContent = String(qty); });
 
-  // Add to cart
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = (btn as HTMLElement).dataset.tab!;
       document.querySelectorAll('.tab-btn').forEach(b => {
-        const el = b as HTMLElement;
-        const active = el.dataset.tab === tab;
-        el.style.background  = active ? 'var(--primary)' : 'transparent';
-        el.style.color       = active ? '#fff' : 'var(--on-surface-variant)';
-        el.style.borderColor = active ? 'var(--primary)' : 'var(--outline-variant)';
+        (b as HTMLElement).classList.toggle('active', (b as HTMLElement).dataset.tab === tab);
       });
       document.querySelectorAll('.tab-panel').forEach(p => {
         (p as HTMLElement).style.display = (p as HTMLElement).dataset.panel === tab ? 'block' : 'none';
@@ -190,38 +618,32 @@ if (!product) {
     });
   });
 
-  document.getElementById('add-to-cart')?.addEventListener('click', () => {
-    const cart = getCart();
-    const pid = document.getElementById('add-to-cart')!.dataset.productId!;
-    const existing = cart.find((c: any) => c.id === pid);
-    if (existing) { existing.quantity = (existing.quantity||1) + qty; }
-    else {
-      const btn = document.getElementById('add-to-wishlist')!;
-      const data = JSON.parse(btn.dataset.product!);
-      cart.push({ ...data, quantity: qty });
+  // Add to cart
+  document.getElementById('add-to-cart')?.addEventListener('click', async () => {
+    if (!currentUid) {
+      window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+      return;
     }
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    const countEl = document.getElementById('cart-count');
-    if (countEl) {
-      const total = cart.reduce((s: number, c: any) => s + (c.quantity||1), 0);
-      countEl.textContent = String(total);
+    try {
+      await addToCart(currentUid, productData, qty);
+      showToast('Added to bag');
+    } catch {
+      showToast('Could not add to bag. Try again.');
     }
-    showToast('Added to bag');
   });
 
   // Wishlist toggle
   const wishlistBtn   = document.getElementById('add-to-wishlist')!;
   const wishlistIcon  = document.getElementById('wishlist-icon')!;
   const wishlistLabel = document.getElementById('wishlist-label')!;
-  const productData   = JSON.parse(wishlistBtn.dataset.product!);
 
   function syncWishlistBtn() {
     const saved = getWishlist().some((i: any) => i.id === productData.id);
     wishlistIcon.textContent  = saved ? 'favorite' : 'favorite_border';
-    wishlistLabel.textContent = saved ? 'Saved to Wishlist' : 'Save to Wishlist';
+    wishlistLabel.textContent = saved ? 'Saved' : 'Save to Wishlist';
     wishlistIcon.style.color  = saved ? 'var(--secondary)' : '';
-    wishlistBtn.style.borderColor = saved ? 'var(--secondary)' : 'var(--primary)';
-    wishlistBtn.style.color       = saved ? 'var(--secondary)' : 'var(--primary)';
+    wishlistBtn.style.borderColor = saved ? 'var(--secondary)' : '';
+    wishlistBtn.style.color       = saved ? 'var(--secondary)' : '';
     wishlistBtn.classList.toggle('saved', saved);
   }
 
@@ -237,7 +659,7 @@ if (!product) {
     } else {
       list.push(productData);
       localStorage.setItem(WISHLIST_KEY, JSON.stringify(list));
-      showToast('Saved to wishlist ♥');
+      showToast('Saved to wishlist');
     }
     syncWishlistBtn();
   });

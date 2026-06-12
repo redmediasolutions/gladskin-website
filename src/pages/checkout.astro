@@ -24,15 +24,18 @@ import Footer from '../components/Footer.astro';
         <div style="display:flex; flex-direction:column; gap:1.5rem;">
 
           <!-- Saved addresses -->
-          <div id="saved-addresses-section" style="display:none;">
-            <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0 0 1rem;">Saved Addresses</h2>
-            <div id="saved-addresses" style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;"></div>
-          </div>
-
-          <!-- Address form -->
           <div style="background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.5rem;">
-            <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0 0 1.25rem;">Delivery Address</h2>
-            <form id="address-form" style="display:grid; gap:1rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+              <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0;">Delivery Address</h2>
+              <button id="add-addr-toggle" type="button" style="display:flex; align-items:center; gap:0.3rem; padding:0.5rem 1rem; background:none; border:1px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--primary); cursor:pointer;">
+                <span class="material-symbols-outlined" style="font-size:0.95rem;">add</span> New Address
+              </button>
+            </div>
+            <div id="saved-addresses" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+            <p id="no-addr-msg" style="display:none; font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); margin:0;">No saved addresses yet. Add one to continue.</p>
+
+            <!-- New address form -->
+            <form id="address-form" style="display:none; gap:1rem; margin-top:1.25rem; border-top:1px solid var(--outline-variant); padding-top:1.25rem;">
               <div class="form-row-2">
                 <div class="field-group">
                   <label class="field-label">Full Name *</label>
@@ -61,23 +64,33 @@ import Footer from '../components/Footer.astro';
                   <input id="f-pincode" type="text" placeholder="400001" required maxlength="6" class="field-input" />
                 </div>
               </div>
-              <label style="display:flex; align-items:center; gap:0.5rem; font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); cursor:pointer;">
-                <input id="save-addr-chk" type="checkbox" checked style="accent-color:var(--primary);" />
-                Save this address for future orders
-              </label>
+              <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button id="cancel-addr-form" type="button" style="padding:0.7rem 1.25rem; background:none; border:1.5px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; color:var(--on-surface-variant);">Cancel</button>
+                <button id="save-new-addr" type="button" style="padding:0.7rem 1.5rem; background:var(--primary); border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; color:#fff;">Save &amp; Use This Address</button>
+              </div>
             </form>
           </div>
 
           <!-- Payment method -->
           <div style="background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.5rem;">
             <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0 0 1rem;">Payment Method</h2>
-            <div style="display:flex; align-items:center; gap:0.75rem; background:var(--surface-container); border-radius:0.75rem; padding:1rem;">
-              <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.5rem;">payments</span>
-              <div>
-                <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:0.9rem; color:var(--on-surface);">Cash on Delivery</div>
-                <div style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:var(--on-surface-variant);">Pay when your order arrives</div>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+              <div data-pm="cod" class="pm-option" style="display:flex; align-items:center; gap:0.75rem; border:2px solid var(--primary); background:var(--surface-container); border-radius:0.75rem; padding:1rem; cursor:pointer;">
+                <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.5rem;">payments</span>
+                <div>
+                  <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:0.9rem; color:var(--on-surface);">Cash on Delivery</div>
+                  <div class="pm-sub" style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:var(--on-surface-variant);">Pay when your order arrives</div>
+                </div>
+                <span class="material-symbols-outlined pm-check" style="color:var(--primary); margin-left:auto; font-size:1.25rem; font-variation-settings:'FILL' 1">radio_button_checked</span>
               </div>
-              <span class="material-symbols-outlined" style="color:var(--primary); margin-left:auto; font-size:1.25rem; font-variation-settings:'FILL' 1">radio_button_checked</span>
+              <div data-pm="online" class="pm-option" style="display:flex; align-items:center; gap:0.75rem; border:2px solid var(--outline-variant); background:transparent; border-radius:0.75rem; padding:1rem; cursor:pointer;">
+                <span class="material-symbols-outlined" style="color:var(--on-surface-variant); font-size:1.5rem;">credit_card</span>
+                <div>
+                  <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:0.9rem; color:var(--on-surface);">Pay Online</div>
+                  <div class="pm-sub" style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:var(--on-surface-variant);">UPI, Cards, Netbanking via Razorpay</div>
+                </div>
+                <span class="material-symbols-outlined pm-check" style="color:var(--on-surface-variant); margin-left:auto; font-size:1.25rem;">radio_button_unchecked</span>
+              </div>
             </div>
           </div>
         </div>
@@ -98,6 +111,12 @@ import Footer from '../components/Footer.astro';
               <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
                 <span>Shipping</span>
                 <span id="co-shipping" style="font-weight:600;"></span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
+                <span>Tax</span><span id="co-tax">₹0</span>
+              </div>
+              <div id="co-codcharge-row" style="display:none; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
+                <span>COD Charge</span><span id="co-codcharge">₹0</span>
               </div>
               <div id="free-shipping-bar" style="background:var(--surface-container); border-radius:9999px; overflow:hidden; height:4px; display:none;">
                 <div id="shipping-progress" style="height:100%; background:linear-gradient(90deg,var(--primary),var(--secondary)); transition:width 0.4s;"></div>
@@ -140,91 +159,90 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  const CART_KEY    = 'gladskin_cart';
-  const ADDR_KEY    = 'gladskin_addresses';
-  const ORDERS_KEY  = 'gladskin_orders';
-  const FREE_SHIP   = 499;
-  const SHIP_FEE    = 49;
+  import { subscribeToAuth } from '../lib/auth';
+  import {
+    subscribeToCart, listAddresses, addAddress,
+    type CartItemDoc, type AddressDoc, type AddressInput,
+  } from '../lib/firestore-data';
+  import {
+    getCartRates, createSecureOrder, finalizeOrder,
+    loadRazorpayScript, openRazorpayCheckout,
+    type BillingShipping, type CartRates,
+  } from '../lib/checkout';
 
-  function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch{return[];} }
-  function getAddresses() { try { return JSON.parse(localStorage.getItem(ADDR_KEY)||'[]'); } catch{return[];} }
+  let uid: string | null = null;
+  let cartItems: Array<CartItemDoc & { id: string }> = [];
+  let addresses: AddressDoc[] = [];
+  let selectedAddrId: string | null = null;
+  let paymentMethod: 'cod' | 'online' = 'cod';
+  let rates: CartRates | null = null;
+  let placingOrder = false;
+  let unsubscribeCart: (() => void) | null = null;
 
-  const cart = getCart();
+  const placeBtn   = document.getElementById('place-order-btn') as HTMLButtonElement;
+  const addrList   = document.getElementById('saved-addresses')!;
+  const noAddrMsg  = document.getElementById('no-addr-msg')!;
+  const addrForm   = document.getElementById('address-form') as HTMLFormElement;
+  const addToggle  = document.getElementById('add-addr-toggle')!;
+  const cancelForm = document.getElementById('cancel-addr-form')!;
 
-  // Guard: redirect if empty
-  if (cart.length === 0) {
-    (document.getElementById('empty-guard') as HTMLElement).style.display = 'block';
-    (document.getElementById('checkout-layout') as HTMLElement).style.display = 'none';
-  }
-
-  // Render saved addresses
-  const addrs = getAddresses();
-  if (addrs.length) {
-    const sec = document.getElementById('saved-addresses-section')!;
-    const container = document.getElementById('saved-addresses')!;
-    sec.style.display = 'block';
-    let selectedId = addrs[0].id;
-
-    function renderAddrs() {
-      container.innerHTML = addrs.map((a: any) => `
-        <div onclick="window.__selectAddr('${a.id}')" id="addr-${a.id}"
-          style="border:2px solid ${a.id===selectedId?'var(--primary)':'var(--outline-variant)'}; border-radius:0.75rem; padding:0.875rem 1rem; cursor:pointer; transition:border-color 0.2s; background:var(--surface-container-lowest);">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:0.875rem; color:var(--on-surface);">${a.name}</div>
-              <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); margin-top:0.2rem;">${a.addressLine}, ${a.city}, ${a.state} – ${a.pincode}</div>
-              <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant);">📞 ${a.phone}</div>
-            </div>
-            ${a.id===selectedId?'<span class="material-symbols-outlined" style="color:var(--primary); font-variation-settings:\'FILL\' 1">check_circle</span>':''}
-          </div>
-        </div>
-      `).join('');
+  function showToast(msg: string, err = false) {
+    let t = document.getElementById('checkout-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'checkout-toast';
+      t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(4rem);padding:0.75rem 1.5rem;border-radius:9999px;font-family:Manrope,sans-serif;font-size:0.8rem;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;white-space:nowrap;';
+      document.body.appendChild(t);
     }
-
-    (window as any).__selectAddr = (id: string) => { selectedId = id; renderAddrs(); };
-    renderAddrs();
-
-    // Pre-fill form when address selected
-    Object.defineProperty(window, '__getSelectedAddr', {
-      get: () => addrs.find((a:any) => a.id === selectedId) || null
-    });
+    t.style.background = err ? '#c62828' : 'var(--on-surface)';
+    t.style.color = '#fff';
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => { t!.style.opacity='0'; t!.style.transform='translateX(-50%) translateY(4rem)'; }, 3000);
   }
 
-  // Render order items + totals
-  const subtotal = cart.reduce((s: number, c: any) => s + c.price * (c.quantity||1), 0);
-  const shipping  = subtotal >= FREE_SHIP ? 0 : SHIP_FEE;
-  const total     = subtotal + shipping;
+  // ── Address list / form ──────────────────────────────────────────────
+  function renderAddresses() {
+    if (addresses.length === 0) {
+      noAddrMsg.style.display = 'block';
+      addrList.innerHTML = '';
+      return;
+    }
+    noAddrMsg.style.display = 'none';
+    if (!selectedAddrId || !addresses.find(a => a.id === selectedAddrId)) selectedAddrId = addresses[0].id;
 
-  document.getElementById('co-subtotal')!.textContent = `₹${subtotal.toFixed(2)}`;
-  document.getElementById('co-shipping')!.textContent = shipping === 0 ? 'FREE' : `₹${shipping}`;
-  (document.getElementById('co-shipping') as HTMLElement).style.color = shipping === 0 ? 'var(--tertiary)' : 'var(--on-surface-variant)';
-  document.getElementById('co-total')!.textContent = `₹${total.toFixed(2)}`;
-
-  if (subtotal < FREE_SHIP) {
-    const remaining = FREE_SHIP - subtotal;
-    const bar  = document.getElementById('free-shipping-bar')!;
-    const prog = document.getElementById('shipping-progress')!;
-    const tip  = document.getElementById('shipping-tip')!;
-    bar.style.display = 'block';
-    tip.style.display = 'block';
-    prog.style.width  = `${Math.min((subtotal/FREE_SHIP)*100,100)}%`;
-    tip.textContent   = `Add ₹${remaining.toFixed(0)} more for FREE shipping!`;
+    addrList.innerHTML = addresses.map(a => `
+      <div onclick="window.__selectAddr('${a.id}')" id="addr-${a.id}"
+        style="border:2px solid ${a.id===selectedAddrId ? 'var(--primary)' : 'var(--outline-variant)'}; border-radius:0.75rem; padding:0.875rem 1rem; cursor:pointer; transition:border-color 0.2s; background:var(--surface-container-lowest);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <div style="font-family:'Manrope',sans-serif; font-weight:700; font-size:0.875rem; color:var(--on-surface);">${a.name}</div>
+            <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); margin-top:0.2rem;">${a.address}, ${a.city}, ${a.state} – ${a.pincode}</div>
+            <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant);">📞 ${a.phone}</div>
+          </div>
+          ${a.id === selectedAddrId ? `<span class="material-symbols-outlined" style="color:var(--primary); font-variation-settings:'FILL' 1">check_circle</span>` : ''}
+        </div>
+      </div>
+    `).join('');
   }
 
-  document.getElementById('order-items')!.innerHTML = cart.map((c: any) => `
-    <div style="display:grid; grid-template-columns:3rem 1fr; gap:0.75rem; align-items:center;">
-      <div style="border-radius:0.4rem; overflow:hidden; aspect-ratio:3/4; background:var(--surface-container);">
-        <img src="${c.image}" style="width:100%; height:100%; object-fit:cover;" />
-      </div>
-      <div>
-        <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:600; color:var(--on-surface);">${c.name}</div>
-        <div style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:var(--on-surface-variant);">Qty: ${c.quantity||1} &nbsp;·&nbsp; ₹${(c.price*(c.quantity||1)).toFixed(2)}</div>
-      </div>
-    </div>
-  `).join('');
+  (window as any).__selectAddr = (id: string) => { selectedAddrId = id; renderAddresses(); };
 
-  // Place order
-  document.getElementById('place-order-btn')!.addEventListener('click', () => {
+  function openAddrForm() {
+    addrForm.style.display = 'grid';
+    addToggle.style.display = 'none';
+  }
+  function closeAddrForm() {
+    addrForm.style.display = 'none';
+    addToggle.style.display = 'flex';
+    addrForm.reset();
+  }
+  addToggle.addEventListener('click', openAddrForm);
+  cancelForm.addEventListener('click', closeAddrForm);
+
+  document.getElementById('save-new-addr')!.addEventListener('click', async () => {
+    if (!uid) return;
     const name    = (document.getElementById('f-name')    as HTMLInputElement).value.trim();
     const phone   = (document.getElementById('f-phone')   as HTMLInputElement).value.trim();
     const address = (document.getElementById('f-address') as HTMLInputElement).value.trim();
@@ -232,46 +250,208 @@ import Footer from '../components/Footer.astro';
     const state   = (document.getElementById('f-state')   as HTMLInputElement).value.trim();
     const pincode = (document.getElementById('f-pincode') as HTMLInputElement).value.trim();
 
-    // Validate
-    if (!name || !phone || !address || !city || !state || !pincode) {
-      alert('Please fill in all delivery address fields.');
+    if (!name || !phone || !address || !city || !state || !pincode) { showToast('Please fill in all address fields.', true); return; }
+    if (!/^\d{10}$/.test(phone))  { showToast('Enter a valid 10-digit phone number.', true); return; }
+    if (!/^\d{6}$/.test(pincode)) { showToast('Enter a valid 6-digit pincode.', true); return; }
+
+    const data: AddressInput = { name, phone, address, city, state, pincode };
+    try {
+      const ref = await addAddress(uid, data);
+      addresses = await listAddresses(uid);
+      selectedAddrId = ref.id;
+      renderAddresses();
+      closeAddrForm();
+      showToast('Address saved');
+    } catch {
+      showToast('Could not save address. Try again.', true);
+    }
+  });
+
+  // ── Payment method ───────────────────────────────────────────────────
+  document.querySelectorAll('.pm-option').forEach(el => {
+    el.addEventListener('click', () => {
+      paymentMethod = (el as HTMLElement).dataset.pm as 'cod' | 'online';
+      document.querySelectorAll('.pm-option').forEach(opt => {
+        const o = opt as HTMLElement;
+        const active = o.dataset.pm === paymentMethod;
+        o.style.borderColor = active ? 'var(--primary)' : 'var(--outline-variant)';
+        o.style.background  = active ? 'var(--surface-container)' : 'transparent';
+        const icon = o.querySelector('.pm-check') as HTMLElement;
+        icon.textContent = active ? 'radio_button_checked' : 'radio_button_unchecked';
+        icon.style.color = active ? 'var(--primary)' : 'var(--on-surface-variant)';
+        icon.style.fontVariationSettings = active ? "'FILL' 1" : "'FILL' 0";
+      });
+      renderTotals();
+    });
+  });
+
+  // ── Cart + totals ────────────────────────────────────────────────────
+  function renderItems() {
+    document.getElementById('order-items')!.innerHTML = cartItems.map(c => `
+      <div style="display:grid; grid-template-columns:3rem 1fr; gap:0.75rem; align-items:center;">
+        <div style="border-radius:0.4rem; overflow:hidden; aspect-ratio:3/4; background:var(--surface-container);">
+          <img src="${c.image}" style="width:100%; height:100%; object-fit:cover;" />
+        </div>
+        <div>
+          <div style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:600; color:var(--on-surface);">${c.name}</div>
+          <div style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:var(--on-surface-variant);">Qty: ${c.quantity||1} &nbsp;·&nbsp; ₹${((c.salePrice||0)*(c.quantity||1)).toFixed(2)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderTotals() {
+    const subtotal = cartItems.reduce((s, c) => s + (c.salePrice || 0) * (c.quantity || 1), 0);
+    const r = rates;
+    const freeShipThreshold = r?.freeShippingThreshold ?? 499;
+    const shipping = subtotal <= freeShipThreshold ? (r?.shippingBelowThreshold ?? 49) : (r?.shippingAboveThreshold ?? 0);
+    const tax = subtotal * (r?.taxPercentage ?? 0.05);
+    const codCharge = paymentMethod === 'cod' ? (r?.codCharge ?? 0) : 0;
+    const total = subtotal + shipping + tax + codCharge;
+
+    document.getElementById('co-subtotal')!.textContent = `₹${subtotal.toFixed(2)}`;
+    const shipEl = document.getElementById('co-shipping')!;
+    shipEl.textContent = shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`;
+    (shipEl as HTMLElement).style.color = shipping === 0 ? 'var(--tertiary)' : 'var(--on-surface-variant)';
+    document.getElementById('co-tax')!.textContent = `₹${tax.toFixed(2)}`;
+
+    const codRow = document.getElementById('co-codcharge-row')!;
+    if (codCharge > 0) {
+      codRow.style.display = 'flex';
+      document.getElementById('co-codcharge')!.textContent = `₹${codCharge.toFixed(2)}`;
+    } else {
+      codRow.style.display = 'none';
+    }
+
+    document.getElementById('co-total')!.textContent = `₹${total.toFixed(2)}`;
+
+    const bar  = document.getElementById('free-shipping-bar')!;
+    const prog = document.getElementById('shipping-progress')!;
+    const tip  = document.getElementById('shipping-tip')!;
+    if (subtotal < freeShipThreshold) {
+      const remaining = freeShipThreshold - subtotal;
+      bar.style.display = 'block';
+      tip.style.display = 'block';
+      prog.style.width  = `${Math.min((subtotal / freeShipThreshold) * 100, 100)}%`;
+      tip.textContent   = `Add ₹${remaining.toFixed(0)} more for FREE shipping!`;
+    } else {
+      bar.style.display = 'none';
+      tip.style.display = 'none';
+    }
+  }
+
+  function renderCartDependent() {
+    const guard  = document.getElementById('empty-guard') as HTMLElement;
+    const layout = document.getElementById('checkout-layout') as HTMLElement;
+    if (cartItems.length === 0) {
+      guard.style.display = 'block';
+      layout.style.display = 'none';
       return;
     }
-    if (!/^\d{10}$/.test(phone)) { alert('Please enter a valid 10-digit phone number.'); return; }
-    if (!/^\d{6}$/.test(pincode)) { alert('Please enter a valid 6-digit pincode.'); return; }
+    guard.style.display = 'none';
+    layout.style.display = '';
+    renderItems();
+    renderTotals();
+  }
 
-    const deliveryAddress = { name, phone, addressLine: address, city, state, pincode };
-
-    // Save address if checkbox ticked
-    if ((document.getElementById('save-addr-chk') as HTMLInputElement).checked) {
-      const addrs = getAddresses();
-      const id = `addr_${Date.now()}`;
-      addrs.push({ id, ...deliveryAddress });
-      localStorage.setItem(ADDR_KEY, JSON.stringify(addrs));
-    }
-
-    // Create order
-    const orderId = `GS${Date.now().toString(36).toUpperCase()}`;
-    const order = {
-      id: orderId,
-      items: cart,
-      address: deliveryAddress,
-      subtotal,
-      shipping,
-      total,
-      paymentMethod: 'cod',
-      status: 'pending',
-      createdAt: new Date().toISOString(),
+  function addressToBillingShipping(a: AddressDoc): BillingShipping {
+    return {
+      first_name: a.name,
+      phone: a.phone,
+      address_1: a.address,
+      city: a.city,
+      state: a.state,
+      postcode: a.pincode,
+      country: 'IN',
     };
+  }
 
-    const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)||'[]');
-    orders.unshift(order);
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  // ── Place order ──────────────────────────────────────────────────────
+  placeBtn.addEventListener('click', async () => {
+    if (!uid || placingOrder) return;
+    if (cartItems.length === 0) { showToast('Your bag is empty.', true); return; }
+    const selected = addresses.find(a => a.id === selectedAddrId);
+    if (!selected) { showToast('Please select or add a delivery address.', true); return; }
 
-    // Clear cart
-    localStorage.removeItem(CART_KEY);
+    placingOrder = true;
+    placeBtn.disabled = true;
+    placeBtn.style.opacity = '0.6';
+    const originalLabel = placeBtn.innerHTML;
+    placeBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1.1rem;">hourglass_top</span> Placing Order…';
 
-    // Go to success page
-    window.location.href = `/order-success?id=${orderId}`;
+    const billingShipping = addressToBillingShipping(selected);
+
+    try {
+      const order = await createSecureOrder(paymentMethod, false);
+
+      if (paymentMethod === 'cod' || order.finalPayable <= 0) {
+        const result = await finalizeOrder({ billing: billingShipping, shipping: billingShipping, useWallet: false });
+        window.location.href = `/order-success?id=${result.orderId}`;
+        return;
+      }
+
+      // Online payment via Razorpay
+      if (!order.razorpayOrderId || !order.razorpayKey) throw new Error('Could not start online payment');
+      await loadRazorpayScript();
+
+      openRazorpayCheckout({
+        key: order.razorpayKey,
+        amount: Math.round(order.finalPayable * 100),
+        orderId: order.razorpayOrderId,
+        name: 'Gladskin',
+        description: 'Order Payment',
+        contact: selected.phone,
+        onSuccess: async (payload) => {
+          try {
+            placeBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1.1rem;">hourglass_top</span> Confirming Payment…';
+            const result = await finalizeOrder({
+              razorpayOrderId: payload.razorpay_order_id,
+              razorpayPaymentId: payload.razorpay_payment_id,
+              razorpaySignature: payload.razorpay_signature,
+              billing: billingShipping,
+              shipping: billingShipping,
+              useWallet: false,
+            });
+            window.location.href = `/order-success?id=${result.orderId}`;
+          } catch {
+            showToast('Payment received but order confirmation failed. Contact support.', true);
+            placingOrder = false;
+            placeBtn.disabled = false;
+            placeBtn.style.opacity = '1';
+            placeBtn.innerHTML = originalLabel;
+          }
+        },
+        onDismiss: () => {
+          placingOrder = false;
+          placeBtn.disabled = false;
+          placeBtn.style.opacity = '1';
+          placeBtn.innerHTML = originalLabel;
+        },
+      });
+    } catch (e: any) {
+      showToast(e?.message || 'Checkout failed. Please try again.', true);
+      placingOrder = false;
+      placeBtn.disabled = false;
+      placeBtn.style.opacity = '1';
+      placeBtn.innerHTML = originalLabel;
+    }
+  });
+
+  // ── Auth gate + data load ────────────────────────────────────────────
+  subscribeToAuth(user => {
+    if (unsubscribeCart) { unsubscribeCart(); unsubscribeCart = null; }
+    if (!user) {
+      window.location.href = '/login?next=/checkout';
+      return;
+    }
+    uid = user.uid;
+
+    unsubscribeCart = subscribeToCart(uid, items => {
+      cartItems = items;
+      renderCartDependent();
+    });
+
+    listAddresses(uid).then(list => { addresses = list; renderAddresses(); });
+    getCartRates(paymentMethod).then(r => { rates = r; renderTotals(); }).catch(() => {});
   });
 </script>

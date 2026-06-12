@@ -65,12 +65,26 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  const CART_KEY     = 'gladskin_cart';
-  const WISHLIST_KEY = 'gladskin_wishlist';
+  import { subscribeToAuth } from '../lib/auth';
+  import { subscribeToCart, subscribeToCartCount, changeCartQuantity, removeFromCart, type CartItemDoc } from '../lib/firestore-data';
+  import type { Product } from '../types/index';
 
-  function getCart()     { try { return JSON.parse(localStorage.getItem(CART_KEY)     || '[]'); } catch { return []; } }
+  const WISHLIST_KEY = 'gladskin_wishlist';
   function getWishlist() { try { return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'); } catch { return []; } }
-  function saveCart(c: any[]) { localStorage.setItem(CART_KEY, JSON.stringify(c)); }
+
+  // Live catalog (real WooCommerce products + images), loaded via the
+  // server-side /api/products proxy so credentials stay off the client.
+  let catalog: Product[] = [];
+  fetch('/api/products')
+    .then(r => r.json())
+    .then((data: Product[]) => {
+      catalog = data;
+      if (cartItems.length) renderCart(cartItems);
+    })
+    .catch(() => {});
+
+  let uid: string | null = null;
+  let unsubscribeCart: (() => void) | null = null;
 
   function showToast(msg: string) {
     const t = document.getElementById('cart-toast')!;
@@ -80,45 +94,42 @@ import Footer from '../components/Footer.astro';
     setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(4rem)'; }, 2500);
   }
 
-  function updateHeaderCount(cart: any[]) {
-    const total = cart.reduce((s: number, c: any) => s + (c.quantity || 1), 0);
-    const el = document.getElementById('cart-count');
-    if (el) el.textContent = String(total);
+  function findLocalProduct(productId: number) {
+    return catalog.find(p => p.id === String(productId));
   }
 
-  function removeItem(id: string) {
-    const cart = getCart().filter((c: any) => c.id !== id);
-    saveCart(cart);
-    updateHeaderCount(cart);
+  function changeQty(productId: string, delta: number) {
+    if (!uid) return;
+    changeCartQuantity(uid, productId, delta);
+  }
+
+  function removeItem(productId: string) {
+    if (!uid) return;
+    removeFromCart(uid, productId);
     showToast('Item removed');
-    renderCart();
   }
 
-  function changeQty(id: string, delta: number) {
-    const cart = getCart();
-    const item = cart.find((c: any) => c.id === id);
-    if (!item) return;
-    item.quantity = Math.max(1, (item.quantity || 1) + delta);
-    saveCart(cart);
-    updateHeaderCount(cart);
-    renderCart();
-  }
-
-  function moveToWishlist(id: string) {
-    const cart = getCart();
-    const item = cart.find((c: any) => c.id === id);
-    if (!item) return;
+  function moveToWishlist(item: CartItemDoc & { id: string }) {
+    if (!uid) return;
+    const local = findLocalProduct(item.productId);
     const wishlist = getWishlist();
-    if (!wishlist.find((w: any) => w.id === id)) {
-      wishlist.push({ id: item.id, name: item.name, price: item.price, image: item.image, imageAlt: item.imageAlt, slug: item.slug, category: item.category });
+    if (!wishlist.find((w: any) => w.id === item.id)) {
+      wishlist.push({
+        id: item.id,
+        name: item.name,
+        price: item.salePrice,
+        image: item.image,
+        imageAlt: item.name,
+        slug: local?.slug || '',
+        category: local?.category || '',
+      });
       localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
     }
-    removeItem(id);
+    removeFromCart(uid, item.id);
     showToast('Moved to wishlist');
   }
 
-  function renderCart() {
-    const cart       = getCart();
+  function renderCart(items: Array<CartItemDoc & { id: string }>) {
     const countEl    = document.getElementById('cart-item-count')!;
     const emptyEl    = document.getElementById('cart-empty')!;
     const layoutEl   = document.getElementById('cart-layout')!;
@@ -126,13 +137,12 @@ import Footer from '../components/Footer.astro';
     const subtotalEl = document.getElementById('subtotal')!;
     const totalEl    = document.getElementById('total')!;
 
-    const totalQty  = cart.reduce((s: number, c: any) => s + (c.quantity || 1), 0);
-    const totalAmt  = cart.reduce((s: number, c: any) => s + c.price * (c.quantity || 1), 0);
+    const totalQty = items.reduce((s, c) => s + (c.quantity || 1), 0);
+    const totalAmt = items.reduce((s, c) => s + (c.salePrice || 0) * (c.quantity || 1), 0);
 
     countEl.textContent = String(totalQty);
-    updateHeaderCount(cart);
 
-    if (cart.length === 0) {
+    if (items.length === 0) {
       emptyEl.style.display  = 'block';
       layoutEl.style.display = 'none';
       return;
@@ -144,16 +154,20 @@ import Footer from '../components/Footer.astro';
     subtotalEl.textContent = `₹${totalAmt.toFixed(2)}`;
     totalEl.textContent    = `₹${totalAmt.toFixed(2)}`;
 
-    itemsEl.innerHTML = cart.map((item: any) => `
+    itemsEl.innerHTML = items.map((item) => {
+      const local = findLocalProduct(item.productId);
+      const href  = local ? `/products/${local.slug}` : '#';
+      const category = local?.category || '';
+      return `
       <div style="display:grid; grid-template-columns:6rem 1fr; gap:1.25rem; align-items:center; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.25rem;" class="cart-row">
-        <a href="/products/${item.slug}" style="display:block; border-radius:0.5rem; overflow:hidden; aspect-ratio:3/4;">
+        <a href="${href}" style="display:block; border-radius:0.5rem; overflow:hidden; aspect-ratio:3/4;">
           <img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" />
         </a>
         <div style="display:flex; flex-direction:column; gap:0.6rem;">
           <div>
-            <span style="font-family:'Manrope',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--on-surface-variant);">${item.category}</span>
+            ${category ? `<span style="font-family:'Manrope',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--on-surface-variant);">${category}</span>` : ''}
             <h3 style="font-family:'Noto Serif',serif; font-size:1.05rem; font-weight:400; color:var(--on-surface); margin:0.2rem 0 0;">${item.name}</h3>
-            <p style="font-family:'Manrope',sans-serif; font-size:1rem; color:var(--primary); font-weight:600; margin:0.2rem 0 0;">₹${item.price.toFixed(2)}</p>
+            <p style="font-family:'Manrope',sans-serif; font-size:1rem; color:var(--primary); font-weight:600; margin:0.2rem 0 0;">₹${(item.salePrice || 0).toFixed(2)}</p>
           </div>
           <!-- Qty controls -->
           <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -176,12 +190,29 @@ import Footer from '../components/Footer.astro';
           </div>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
-  (window as any).__removeCart      = removeItem;
-  (window as any).__cartQty         = changeQty;
-  (window as any).__moveToWishlist  = moveToWishlist;
+  let cartItems: Array<CartItemDoc & { id: string }> = [];
 
-  renderCart();
+  (window as any).__removeCart = removeItem;
+  (window as any).__cartQty    = changeQty;
+  (window as any).__moveToWishlist = (id: string) => {
+    const item = cartItems.find(i => i.id === id);
+    if (item) moveToWishlist(item);
+  };
+
+  subscribeToAuth(user => {
+    if (unsubscribeCart) { unsubscribeCart(); unsubscribeCart = null; }
+    if (!user) {
+      window.location.href = '/login?next=/cart';
+      return;
+    }
+    uid = user.uid;
+    unsubscribeCart = subscribeToCart(uid, items => {
+      cartItems = items;
+      renderCart(items);
+    });
+  });
 </script>
