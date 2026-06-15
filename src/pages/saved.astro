@@ -34,9 +34,6 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <script>
-  import { subscribeToAuth } from '../lib/auth';
-  import { addToCart } from '../lib/firestore-data';
-
   const WISHLIST_KEY = 'gladskin_wishlist';
 
   function getWishlist() {
@@ -45,9 +42,6 @@ import Footer from '../components/Footer.astro';
   function saveWishlist(items: any[]) {
     localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
   }
-
-  let currentUid: string | null = null;
-  subscribeToAuth(user => { currentUid = user ? user.uid : null; });
 
   function showToast(msg: string) {
     const t = document.getElementById('toast')!;
@@ -58,22 +52,6 @@ import Footer from '../components/Footer.astro';
       t.style.opacity = '0';
       t.style.transform = 'translateX(-50%) translateY(4rem)';
     }, 2500);
-  }
-
-  async function moveToBag(item: any) {
-    if (!currentUid) {
-      window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
-      return;
-    }
-    try {
-      // Wishlist items already carry the product fields addToCart needs
-      // (id, name, price, image, slug, category) — no extra lookup required.
-      await addToCart(currentUid, item, 1);
-      removeFromWishlist(item.id, false);
-      showToast('Moved to bag');
-    } catch {
-      showToast('Could not move to bag. Try again.');
-    }
   }
 
   function removeFromWishlist(id: string, toast = true) {
@@ -98,24 +76,25 @@ import Footer from '../components/Footer.astro';
     }
 
     emptyEl.style.display = 'none';
-    itemsEl.innerHTML = items.map((item: any) => `
+    itemsEl.innerHTML = items.map((item: any) => {
+      const hasDiscount = item.originalPrice && item.originalPrice > item.price;
+      const discountPct = hasDiscount ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) : 0;
+      return `
       <div style="display:grid; grid-template-columns:6rem 1fr; gap:1.25rem; align-items:center; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.25rem;" class="wishlist-row">
-        <a href="/products/${item.slug}" style="display:block; border-radius:0.5rem; overflow:hidden; aspect-ratio:3/4;">
+        <a href="/products/${item.slug}" style="display:block; border-radius:0.5rem; overflow:hidden; aspect-ratio:3/4; position:relative;">
           <img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" />
+          ${hasDiscount ? `<span style="position:absolute;top:0.3rem;left:0.3rem;background:#1a1a1a;color:#fff;padding:0.1rem 0.4rem;border-radius:9999px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;font-family:'Manrope',sans-serif;">${discountPct}% OFF</span>` : ''}
         </a>
         <div style="display:flex; flex-direction:column; gap:0.75rem;">
           <div>
             <span style="font-family:'Manrope',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--on-surface-variant);">${item.category}</span>
             <h3 style="font-family:'Noto Serif',serif; font-size:1.1rem; font-weight:400; color:var(--on-surface); margin:0.2rem 0 0;">${item.name}</h3>
-            <p style="font-family:'Manrope',sans-serif; font-size:1rem; color:var(--primary); font-weight:600; margin:0.25rem 0 0;">₹${item.price.toFixed(2)}</p>
+            <div style="display:flex;align-items:baseline;gap:0.4rem;margin:0.25rem 0 0;">
+              <span style="font-family:'Manrope',sans-serif; font-size:1rem; color:var(--primary); font-weight:700;">₹${item.price.toFixed(0)}</span>
+              ${hasDiscount ? `<span style="font-family:'Manrope',sans-serif;font-size:0.78rem;color:#9a8a94;text-decoration:line-through;">₹${item.originalPrice.toFixed(0)}</span>` : ''}
+            </div>
           </div>
           <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-            <button
-              onclick="window.__moveToBag('${item.id}')"
-              style="padding:0.6rem 1.25rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:#fff; border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
-              <span class="material-symbols-outlined" style="font-size:1rem;">shopping_bag</span>
-              Move to Bag
-            </button>
             <button
               onclick="window.__removeWishlist('${item.id}')"
               style="padding:0.6rem 1rem; background:none; border:1px solid var(--outline-variant); border-radius:9999px; font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:600; color:var(--on-surface-variant); cursor:pointer; display:flex; align-items:center; gap:0.3rem;">
@@ -125,11 +104,11 @@ import Footer from '../components/Footer.astro';
           </div>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   // Expose to inline onclick handlers
-  (window as any).__moveToBag      = (id: string) => moveToBag(getWishlist().find((i: any) => i.id === id));
   (window as any).__removeWishlist = (id: string) => removeFromWishlist(id);
 
   renderWishlist();

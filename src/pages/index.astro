@@ -3,9 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProductCard from '../components/ProductCard.astro';
-import { getProducts } from '../data/products.ts';
+import { getProductsByCategory } from '../data/products.ts';
+import { HOMEPAGE_CATEGORY_ID, RECOMMENDED_CATEGORY_ID } from '../lib/woocommerce.ts';
 
-const products = await getProducts();
+const homepageProducts = await getProductsByCategory(HOMEPAGE_CATEGORY_ID);
+const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID);
 ---
 
 <BaseLayout>
@@ -47,25 +49,49 @@ const products = await getProducts();
       </div>
     </section>
 
-    <!-- Featured Collection -->
-    <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface-container-low);">
-      <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
-        <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
-          <div>
-            <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">The Curated Selection</span>
-            <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Seasonal Icons</h2>
+    <!-- Homepage Picks -->
+    {homepageProducts.length > 0 && (
+      <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface-container-low);">
+        <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
+          <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
+            <div>
+              <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">The Curated Selection</span>
+              <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Seasonal Icons</h2>
+            </div>
+            <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
+              View All Atelier <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
+            </a>
           </div>
-          <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
-            View All Atelier <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
-          </a>
+          <div class="products-grid">
+            {homepageProducts.map((product, i) => (
+              <ProductCard product={product} delay={i * 200} />
+            ))}
+          </div>
         </div>
-        <div class="products-grid">
-          {products.map((product, i) => (
-            <ProductCard product={product} delay={i * 200} />
-          ))}
+      </section>
+    )}
+
+    <!-- Recommended For You -->
+    {recommendedProducts.length > 0 && (
+      <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface);">
+        <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
+          <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
+            <div>
+              <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">Just For You</span>
+              <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Recommended</h2>
+            </div>
+            <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
+              View All Atelier <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
+            </a>
+          </div>
+          <div class="products-grid">
+            {recommendedProducts.map((product, i) => (
+              <ProductCard product={product} delay={i * 200} />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    )}
 
     <!-- Why Gladskin -->
     <section class="why-section">

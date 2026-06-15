@@ -31,10 +31,30 @@ import Footer from '../components/Footer.astro';
 
         <!-- Order summary -->
         <div style="background:var(--surface-container-low); border-radius:1rem; padding:1.5rem; height:fit-content; position:sticky; top:4rem;">
+
+          <!-- Savings card — shown only when products have discounts -->
+          <div id="savings-card" style="display:none; align-items:center; gap:0.75rem; background:linear-gradient(135deg,#FDF5F8,#F8E9F0); border:1px solid #E8C7D8; border-radius:0.875rem; padding:1rem 1.125rem; margin-bottom:1.25rem;">
+            <div style="width:2.75rem; height:2.75rem; border-radius:50%; background:linear-gradient(135deg,#B34E6F,#6F0562); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <span class="material-symbols-outlined" style="color:#fff; font-size:1.25rem; font-variation-settings:'FILL' 1;">auto_awesome</span>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <p style="font-family:'Manrope',sans-serif; font-size:0.7rem; color:#6b5c63; margin:0 0 0.1rem; font-weight:500; letter-spacing:0.02em;">Your Beauty Savings</p>
+              <p id="savings-amount" style="font-family:'Manrope',sans-serif; font-size:1.5rem; font-weight:800; color:var(--primary); margin:0 0 0.1rem; line-height:1.1;">₹0</p>
+              <p style="font-family:'Manrope',sans-serif; font-size:0.72rem; color:#B34E6F; font-weight:600; margin:0;">saved on this order ✨</p>
+            </div>
+            <div style="background:#fff; border-radius:9999px; padding:0.3rem 0.7rem; flex-shrink:0; box-shadow:0 1px 4px rgba(111,5,98,0.1);">
+              <span style="font-family:'Manrope',sans-serif; font-size:0.58rem; font-weight:800; color:var(--primary); letter-spacing:0.12em; text-transform:uppercase;">YOU SAVE</span>
+            </div>
+          </div>
+
           <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0 0 1.25rem;">Order Summary</h2>
           <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem; border-bottom:1px solid var(--outline-variant); padding-bottom:1.25rem;">
+            <!-- MRP row — shown only when savings exist -->
+            <div id="mrp-row" style="display:none; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:#9a8a94;">
+              <span>MRP</span><span id="mrp-total" style="text-decoration:line-through;">₹0</span>
+            </div>
             <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
-              <span>Subtotal</span><span id="subtotal">₹0</span>
+              <span>Sale Total</span><span id="subtotal">₹0</span>
             </div>
             <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
               <span>Shipping</span><span style="color:var(--tertiary); font-weight:700;">Free</span>
@@ -118,6 +138,7 @@ import Footer from '../components/Footer.astro';
         id: item.id,
         name: item.name,
         price: item.salePrice,
+        originalPrice: item.mrp > item.salePrice ? item.mrp : undefined,
         image: item.image,
         imageAlt: item.name,
         slug: local?.slug || '',
@@ -137,8 +158,10 @@ import Footer from '../components/Footer.astro';
     const subtotalEl = document.getElementById('subtotal')!;
     const totalEl    = document.getElementById('total')!;
 
-    const totalQty = items.reduce((s, c) => s + (c.quantity || 1), 0);
-    const totalAmt = items.reduce((s, c) => s + (c.salePrice || 0) * (c.quantity || 1), 0);
+    const totalQty      = items.reduce((s, c) => s + (c.quantity || 1), 0);
+    const totalAmt      = items.reduce((s, c) => s + (c.salePrice || 0) * (c.quantity || 1), 0);
+    const totalMrp      = items.reduce((s, c) => s + (c.mrp || c.salePrice || 0) * (c.quantity || 1), 0);
+    const totalSavings  = totalMrp - totalAmt;
 
     countEl.textContent = String(totalQty);
 
@@ -151,8 +174,23 @@ import Footer from '../components/Footer.astro';
     emptyEl.style.display  = 'none';
     layoutEl.style.display = '';
 
-    subtotalEl.textContent = `₹${totalAmt.toFixed(2)}`;
-    totalEl.textContent    = `₹${totalAmt.toFixed(2)}`;
+    subtotalEl.textContent = `₹${totalAmt.toFixed(0)}`;
+    totalEl.textContent    = `₹${totalAmt.toFixed(0)}`;
+
+    // Savings card
+    const savingsCard   = document.getElementById('savings-card')!;
+    const savingsAmount = document.getElementById('savings-amount')!;
+    const mrpRow        = document.getElementById('mrp-row')!;
+    const mrpTotal      = document.getElementById('mrp-total')!;
+    if (totalSavings > 0) {
+      savingsCard.style.display = 'flex';
+      savingsAmount.textContent = `₹${totalSavings.toFixed(0)}`;
+      mrpRow.style.display      = 'flex';
+      mrpTotal.textContent      = `₹${totalMrp.toFixed(0)}`;
+    } else {
+      savingsCard.style.display = 'none';
+      mrpRow.style.display      = 'none';
+    }
 
     itemsEl.innerHTML = items.map((item) => {
       const local = findLocalProduct(item.productId);
@@ -167,7 +205,12 @@ import Footer from '../components/Footer.astro';
           <div>
             ${category ? `<span style="font-family:'Manrope',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--on-surface-variant);">${category}</span>` : ''}
             <h3 style="font-family:'Noto Serif',serif; font-size:1.05rem; font-weight:400; color:var(--on-surface); margin:0.2rem 0 0;">${item.name}</h3>
-            <p style="font-family:'Manrope',sans-serif; font-size:1rem; color:var(--primary); font-weight:600; margin:0.2rem 0 0;">₹${(item.salePrice || 0).toFixed(2)}</p>
+            <div style="display:flex;align-items:baseline;gap:0.4rem;margin:0.2rem 0 0;">
+              <span style="font-family:'Manrope',sans-serif; font-size:1.15rem; color:var(--primary); font-weight:700;">₹${((item.salePrice || 0) * (item.quantity || 1)).toFixed(0)}</span>
+              ${item.mrp > item.salePrice ? `<span style="font-family:'Manrope',sans-serif;font-size:0.78rem;color:#9a8a94;text-decoration:line-through;">₹${(item.mrp * (item.quantity || 1)).toFixed(0)}</span><span style="font-family:'Manrope',sans-serif;font-size:0.65rem;font-weight:800;color:green;background:#e8f5e9;border:1px solid #a5d6a7;padding:0.1rem 0.45rem;border-radius:9999px;letter-spacing:0.05em;">${Math.round(((item.mrp - item.salePrice) / item.mrp) * 100)}% OFF</span>` : ''}
+            </div>
+            ${(item.quantity || 1) > 1 ? `<span style="font-family:'Manrope',sans-serif;font-size:0.7rem;color:var(--on-surface-variant);">${item.quantity} × ₹${(item.salePrice || 0).toFixed(0)}</span>` : ''}
+            ${item.mrp > item.salePrice ? `<span style="font-family:'Manrope',sans-serif;font-size:0.72rem;font-weight:700;color:#B34E6F;">You save ₹${((item.mrp - item.salePrice) * (item.quantity || 1)).toFixed(0)}</span>` : ''}
           </div>
           <!-- Qty controls -->
           <div style="display:flex; align-items:center; gap:0.5rem;">

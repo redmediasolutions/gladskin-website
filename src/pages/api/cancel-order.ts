@@ -1,7 +1,4 @@
 import type { APIRoute } from 'astro';
-import { setDefaultResultOrder } from 'node:dns';
-
-setDefaultResultOrder('ipv4first');
 
 const BASE_URL   = import.meta.env.WOO_BASE_URL        || 'https://gs.redmediasolutions.in';
 const WOO_KEY    = import.meta.env.WOO_CONSUMER_KEY    || '';
@@ -19,7 +16,8 @@ function json(data: object, status = 200) {
 function uidFromToken(token: string): string | null {
   try {
     const part    = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const decoded = JSON.parse(Buffer.from(part, 'base64').toString('utf8'));
+    const bytes   = Uint8Array.from(atob(part), c => c.charCodeAt(0));
+    const decoded = JSON.parse(new TextDecoder().decode(bytes));
     return decoded.user_id || decoded.sub || null;
   } catch {
     return null;

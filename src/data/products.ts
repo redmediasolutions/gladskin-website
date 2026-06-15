@@ -149,6 +149,16 @@ export async function getProducts(): Promise<Product[]> {
   return products;
 }
 
+export async function getProductsByCategory(categoryId: number): Promise<Product[]> {
+  try {
+    const { fetchLiveProductsByCategory } = await import('../lib/woocommerce');
+    return await fetchLiveProductsByCategory(categoryId);
+  } catch (err) {
+    console.warn(`[products] live category ${categoryId} fetch failed:`, err);
+    return [];
+  }
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
   try {
     const { fetchLiveProductBySlug } = await import('../lib/woocommerce');

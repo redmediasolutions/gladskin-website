@@ -39,6 +39,10 @@ const profileActive = pathname === '/profile';
       <a id="auth-link-desktop" href="/login?next=/profile" class={`nav-link desktop-link ${profileActive ? 'active' : ''}`}>
         Sign In
       </a>
+      <a href="https://onelink.to/ee6h6p" target="_blank" rel="noopener noreferrer" class="app-dl-btn desktop-link" aria-label="Download Gladskin App">
+        <span class="material-symbols-outlined" style="font-size:1rem;">phone_iphone</span>
+        Get the App
+      </a>
       <a href="/search" aria-label="Search" style="color:var(--primary); display:flex; align-items:center;" class="desktop-link">
         <span class="material-symbols-outlined" style="font-size:1.4rem;">search</span>
       </a>
@@ -57,6 +61,10 @@ const profileActive = pathname === '/profile';
       </a>
     ))}
     <a id="auth-link-mobile" href="/login?next=/profile" class={`mobile-nav-link ${profileActive ? 'active' : ''}`}>Sign In</a>
+    <a href="https://onelink.to/ee6h6p" target="_blank" rel="noopener noreferrer" class="mobile-app-dl-btn">
+      <span class="material-symbols-outlined" style="font-size:1.1rem; vertical-align:middle;">phone_iphone</span>
+      Download App — Get 20% OFF
+    </a>
   </div>
 </header>
 
@@ -207,6 +215,46 @@ const profileActive = pathname === '/profile';
   @keyframes headerShimmer {
     0%,100% { background-position:0% 0;   opacity:0.7; }
     50%     { background-position:100% 0; opacity:1; }
+  }
+
+  /* ── App download button (header) ── */
+  .app-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.42rem 0.875rem;
+    border-radius: 9999px;
+    background: linear-gradient(130deg, #6f0562, #b70b68);
+    color: #fff !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 10px rgba(111,5,98,0.3);
+  }
+  .app-dl-btn:hover { opacity: 0.9; transform: scale(1.03); }
+
+  /* Mobile menu app download CTA */
+  .mobile-app-dl-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(130deg, #6f0562, #b70b68);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    justify-content: center;
   }
 
   /* ── Desktop overrides ── */

@@ -59,6 +59,13 @@ const discountPercent = product.originalPrice && product.originalPrice > product
           )}
         </div>
 
+        {discountPercent !== null && product.originalPrice && (
+          <div class="pd-savings-row">
+            <span class="material-symbols-outlined" style="font-size:1rem; font-variation-settings:'FILL' 1;">savings</span>
+            You save ₹{(product.originalPrice - product.price).toFixed(0)}
+          </div>
+        )}
+
         <!-- Divider -->
         <div class="pd-divider"></div>
 
@@ -96,6 +103,7 @@ const discountPercent = product.originalPrice && product.originalPrice > product
             class="pd-btn-secondary"
             data-product-id={product.id}
             data-product={JSON.stringify({ id: product.id, name: product.name, price: product.price, originalPrice: product.originalPrice, image: product.image, imageAlt: product.imageAlt, slug: product.slug, category: product.category })}
+            style="display:none"
           >
             <span class="material-symbols-outlined" id="wishlist-icon">favorite_border</span>
             <span id="wishlist-label">Save to Wishlist</span>
@@ -149,10 +157,15 @@ const discountPercent = product.originalPrice && product.originalPrice > product
           {product.highlights.map(h => (
             <div class="pd-highlight-card">
               <div class="pd-highlight-icon">
-                <span class="material-symbols-outlined">{h.icon}</span>
+                {h.icon && h.icon.startsWith('http')
+                  ? <img src={h.icon} alt="" class="pd-highlight-icon-img" />
+                  : <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">
+                      {h.icon || 'star'}
+                    </span>
+                }
               </div>
-              <div class="pd-highlight-title">{h.title}</div>
-              <div class="pd-highlight-body">{h.description}</div>
+              {h.title && <div class="pd-highlight-title">{h.title}</div>}
+              {h.description && <div class="pd-highlight-body">{h.description}</div>}
             </div>
           ))}
         </div>
@@ -317,6 +330,21 @@ const discountPercent = product.originalPrice && product.originalPrice > product
     color: var(--on-surface-variant);
     text-decoration: line-through;
     opacity: 0.5;
+  }
+
+  .pd-savings-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #FEF0F4;
+    border: 1px solid #F5C2D2;
+    border-radius: 9999px;
+    padding: 0.35rem 0.875rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #B34E6F;
+    margin-top: -0.5rem;
   }
 
   .pd-divider {
@@ -518,7 +546,7 @@ const discountPercent = product.originalPrice && product.originalPrice > product
   .pd-highlights {
     max-width: 80rem;
     margin: 0 auto;
-    padding: 3rem clamp(1.25rem, 4vw, 3rem);
+    padding: 3rem clamp(1.25rem, 4vw, 3rem) 4rem;
     border-top: 1px solid var(--outline-variant);
   }
   .pd-section-eyebrow {
@@ -528,7 +556,7 @@ const discountPercent = product.originalPrice && product.originalPrice > product
     letter-spacing: 0.25em;
     text-transform: uppercase;
     color: var(--primary);
-    margin: 0 0 1.5rem;
+    margin: 0 0 1.75rem;
   }
   .pd-highlights-grid {
     display: grid;
@@ -536,38 +564,63 @@ const discountPercent = product.originalPrice && product.originalPrice > product
     gap: 1rem;
   }
   @media (min-width: 768px) {
-    .pd-highlights-grid { grid-template-columns: repeat(4, 1fr); }
+    .pd-highlights-grid { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
   }
+  /* Card — mirrors app's _highlightCard container */
   .pd-highlight-card {
-    background: var(--surface-container-lowest);
-    border: 1px solid var(--outline-variant);
-    border-radius: 1rem;
-    padding: 1.25rem;
+    background: #F8F4F6;
+    border: 1px solid #F1E5EC;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0;
+    min-height: 10rem;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
+  .pd-highlight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(111,5,98,0.1);
+  }
+  /* Icon box — mirrors 68×68 container with #F1E7ED bg */
   .pd-highlight-icon {
-    width: 2.25rem;
-    height: 2.25rem;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 0.625rem;
+    width: 4rem;
+    height: 4rem;
+    background: #F1E7ED;
+    border-radius: 1.125rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: 1.5rem;
   }
-  .pd-highlight-icon .material-symbols-outlined { font-size: 1.1rem; color: #fff; }
+  .pd-highlight-icon .material-symbols-outlined {
+    font-size: 1.5rem;
+    color: #8A206E;
+  }
+  .pd-highlight-icon-img {
+    width: 1.5rem;
+    height: 1.5rem;
+    object-fit: contain;
+  }
+  /* Title — mirrors Playfair Display, w700 */
   .pd-highlight-title {
-    font-family: 'Manrope', sans-serif;
-    font-size: 0.82rem;
+    font-family: 'Noto Serif', serif;
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
     font-weight: 700;
-    color: var(--on-surface);
+    color: #1D1B1C;
+    line-height: 1.25;
+    margin-bottom: 0.875rem;
   }
+  /* Body — mirrors Manrope, 16px, #5B4A55, line-height 1.8 */
   .pd-highlight-body {
     font-family: 'Manrope', sans-serif;
-    font-size: 0.76rem;
-    color: var(--on-surface-variant);
-    line-height: 1.6;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #5B4A55;
+    line-height: 1.8;
+    margin: 0;
   }
 </style>
 

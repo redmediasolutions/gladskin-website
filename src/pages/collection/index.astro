@@ -234,11 +234,28 @@ const catDataJson = JSON.stringify(liveCats);
   const RC_CACHE_KEY = 'gs_rc_cats_v1';
   const RC_CACHE_TTL = 5 * 60 * 1000;
 
-  function showAllowedTabs(allowedIds: Set<number> | null) {
-    document.querySelectorAll<HTMLElement>('.cat-filter[data-cat-id]').forEach(btn => {
-      const id = parseInt(btn.dataset.catId!, 10);
-      btn.style.display = (allowedIds === null || allowedIds.has(id)) ? '' : 'none';
-    });
+  // Mirrors the mobile app's category list: [All, ...categories in the order
+  // given by Remote Config's "productcategories" (comma-separated IDs)].
+  function showAllowedTabs(orderedIds: number[] | null) {
+    const bar = document.getElementById('cat-filters')!;
+    const tabButtons = Array.from(bar.querySelectorAll<HTMLElement>('.cat-filter[data-cat-id]'));
+
+    if (orderedIds === null) {
+      tabButtons.forEach(b => { b.style.display = ''; });
+      return;
+    }
+
+    const byId = new Map(tabButtons.map(b => [parseInt(b.dataset.catId!, 10), b]));
+    tabButtons.forEach(b => { b.style.display = 'none'; });
+
+    let anchor = bar.querySelector<HTMLElement>('[data-cat="All"]')!;
+    for (const id of orderedIds) {
+      const btn = byId.get(id);
+      if (!btn) continue;
+      btn.style.display = '';
+      anchor.after(btn);
+      anchor = btn;
+    }
   }
 
   async function loadCategoryFilters() {
@@ -246,7 +263,7 @@ const catDataJson = JSON.stringify(liveCats);
     try {
       const cached = JSON.parse(localStorage.getItem(RC_CACHE_KEY) || 'null');
       if (cached && Date.now() - cached.ts < RC_CACHE_TTL && Array.isArray(cached.ids)) {
-        showAllowedTabs(new Set<number>(cached.ids));
+        showAllowedTabs(cached.ids);
         return;
       }
     } catch {}
@@ -261,7 +278,7 @@ const catDataJson = JSON.stringify(liveCats);
 
       const ids = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
       localStorage.setItem(RC_CACHE_KEY, JSON.stringify({ ts: Date.now(), ids }));
-      showAllowedTabs(new Set<number>(ids));
+      showAllowedTabs(ids);
     } catch {
       showAllowedTabs(null); // fallback: show all tabs
     }

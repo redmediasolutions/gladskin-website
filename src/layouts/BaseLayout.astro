@@ -23,5 +23,181 @@ const {
   </head>
   <body>
     <slot />
+
+    <!-- ── Floating App Download Banner ── -->
+    <div id="app-dl-banner">
+      <div class="adb-glow"></div>
+
+      <div class="adb-icon">
+        <span class="material-symbols-outlined">phone_iphone</span>
+      </div>
+
+      <div class="adb-text">
+        <span class="adb-title">Download the Gladskin App</span>
+        <span class="adb-sub">Get up to <strong class="adb-off">20% OFF</strong> your first order</span>
+      </div>
+
+      <a href="https://onelink.to/ee6h6p" target="_blank" rel="noopener noreferrer" class="adb-cta">
+        Download Free
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </a>
+    </div>
   </body>
 </html>
+
+<style>
+  /* ── Banner shell ── */
+  #app-dl-banner {
+    position: fixed;
+    bottom: 1.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 80;
+
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+
+    padding: 0.7rem 0.875rem 0.7rem 0.8rem;
+    border-radius: 9999px;
+
+    background: linear-gradient(130deg, #2d0030 0%, #6f0562 42%, #b70b68 78%, #d4006a 100%);
+    box-shadow:
+      0 0 0 1.5px rgba(255, 172, 231, 0.28),
+      0 8px 28px rgba(111, 5, 98, 0.45),
+      0 16px 48px rgba(183, 11, 104, 0.22),
+      0 2px 6px rgba(0, 0, 0, 0.3);
+
+    animation: adbSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.2s both;
+    white-space: nowrap;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+  }
+
+  @keyframes adbSlideUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(3rem); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* Diagonal shimmer sweep */
+  .adb-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: linear-gradient(
+      108deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.00) 38%,
+      rgba(255, 172, 231, 0.14) 50%,
+      rgba(255, 255, 255, 0.06) 56%,
+      transparent 70%
+    );
+    background-size: 250% 100%;
+    animation: adbShimmer 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes adbShimmer {
+    0%   { background-position: 150% 0; }
+    50%  { background-position: -50% 0; }
+    100% { background-position: 150% 0; }
+  }
+
+  /* Icon bubble */
+  .adb-icon {
+    position: relative;
+    z-index: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 172, 231, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .adb-icon .material-symbols-outlined {
+    color: #fff;
+    font-size: 1.25rem;
+  }
+
+  /* Text block */
+  .adb-text {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .adb-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+  .adb-sub {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: rgba(255, 202, 235, 0.9);
+  }
+  .adb-off {
+    color: #ffe259;
+    font-weight: 800;
+  }
+
+  /* CTA button */
+  .adb-cta {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 9999px;
+    background: #fff;
+    color: #6f0562;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s;
+    box-shadow: 0 2px 14px rgba(255, 255, 255, 0.25);
+  }
+  .adb-cta .material-symbols-outlined { font-size: 0.9rem; }
+  .adb-cta:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.35);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    #app-dl-banner {
+      bottom: 5.25rem; /* sits above mobile bottom nav */
+      gap: 0.6rem;
+      padding: 0.6rem 0.75rem 0.6rem 0.65rem;
+    }
+    .adb-icon {
+      width: 2.1rem;
+      height: 2.1rem;
+    }
+    .adb-title { font-size: 0.73rem; }
+    .adb-sub   { font-size: 0.62rem; }
+    .adb-cta   {
+      padding: 0.48rem 0.875rem;
+      font-size: 0.62rem;
+    }
+  }
+
+  /* Very small — drop subtitle to fit */
+  @media (max-width: 380px) {
+    .adb-sub { display: none; }
+    .adb-icon { display: none; }
+  }
+</style>
