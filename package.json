@@ -12,7 +12,9 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
     "astro": "^6.4.2",
-    "firebase": "^12.14.0"
+    "firebase": "^12.14.0",
+    "wrangler": "^4.100.0"
   }
 }
