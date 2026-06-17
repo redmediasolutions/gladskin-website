@@ -3,7 +3,6 @@ const pathname = Astro.url.pathname;
 const navLinks = [
   { label: 'Home',       href: '/',           active: pathname === '/' },
   { label: 'Collection', href: '/collection', active: pathname.startsWith('/collection') || pathname.startsWith('/products') },
-  { label: 'Ritual',     href: '/ritual',     active: pathname === '/ritual' },
 ];
 const profileActive = pathname === '/profile';
 ---
