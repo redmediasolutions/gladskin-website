@@ -5,8 +5,6 @@ import Footer from "../../components/Footer.astro";
 import ProductCard from "../../components/ProductCard.astro";
 import CategoryNav from "../../components/CategoryNav.astro";
 
-import { getProducts } from "../../data/products";
-
 import {
   fetchLiveCategories,
   fetchCategoryById,
@@ -22,9 +20,6 @@ const categoryId = parseInt(
 
 const primaryCategories =
   await fetchLiveCategories();
-
-const allProducts =
-  await getProducts();
 
 /* ----------------------------------
    FIND PARENT CATEGORY

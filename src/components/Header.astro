@@ -38,10 +38,6 @@ const profileActive = pathname === '/profile';
       <a id="auth-link-desktop" href="/login?next=/profile" class={`nav-link desktop-link ${profileActive ? 'active' : ''}`}>
         Sign In
       </a>
-      <a href="https://onelink.to/ee6h6p" target="_blank" rel="noopener noreferrer" class="app-dl-btn desktop-link" aria-label="Download Gladskin App">
-        <span class="material-symbols-outlined" style="font-size:1rem;">phone_iphone</span>
-        Get the App
-      </a>
       <a href="/search" aria-label="Search" style="color:var(--primary); display:flex; align-items:center;" class="desktop-link">
         <span class="material-symbols-outlined" style="font-size:1.4rem;">search</span>
       </a>
@@ -60,10 +56,6 @@ const profileActive = pathname === '/profile';
       </a>
     ))}
     <a id="auth-link-mobile" href="/login?next=/profile" class={`mobile-nav-link ${profileActive ? 'active' : ''}`}>Sign In</a>
-    <a href="https://onelink.to/ee6h6p" target="_blank" rel="noopener noreferrer" class="mobile-app-dl-btn">
-      <span class="material-symbols-outlined" style="font-size:1.1rem; vertical-align:middle;">phone_iphone</span>
-      Download App — Get 20% OFF
-    </a>
   </div>
 </header>
 
@@ -276,31 +268,46 @@ const profileActive = pathname === '/profile';
   }
 </style>
 
+<script is:inline>
+  (function () {
+    var btn  = document.getElementById('mobile-menu-btn');
+    var menu = document.getElementById('mobile-menu');
+    var icon = document.getElementById('hamburger-icon');
+    var hdr  = document.getElementById('main-header');
+
+    if (btn && menu && icon) {
+      btn.addEventListener('click', function () {
+        var isOpen = menu.classList.contains('open');
+        menu.classList.toggle('open');
+        icon.textContent = isOpen ? 'menu' : 'close';
+      });
+
+      menu.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          menu.classList.remove('open');
+          icon.textContent = 'menu';
+        });
+      });
+    }
+
+    if (hdr) {
+      window.addEventListener('scroll', function () {
+        if (window.scrollY > 50) {
+          hdr.style.boxShadow = '0 2px 20px rgba(111,5,98,0.08)';
+          hdr.style.background = 'rgba(252,249,249,0.98)';
+        } else {
+          hdr.style.boxShadow = 'none';
+          hdr.style.background = 'rgba(252,249,249,0.95)';
+        }
+      });
+    }
+  })();
+</script>
+
 <script>
   import { subscribeToAuth } from '../lib/auth';
   import { subscribeToCartCount } from '../lib/firestore-data';
 
-  const header  = document.getElementById('main-header')!;
-  const btn     = document.getElementById('mobile-menu-btn')!;
-  const menu    = document.getElementById('mobile-menu')!;
-  const icon    = document.getElementById('hamburger-icon')!;
-
-  /* Hamburger toggle — swaps icon and opens/closes menu */
-  btn.addEventListener('click', () => {
-    const isOpen = menu.classList.contains('open');
-    menu.classList.toggle('open');
-    icon.textContent = isOpen ? 'menu' : 'close';
-  });
-
-  /* Close menu on nav link click */
-  menu.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => {
-      menu.classList.remove('open');
-      icon.textContent = 'menu';
-    });
-  });
-
-  /* Toggle Sign In ↔ Profile and live cart badge based on auth state */
   const authLinks = [
     document.getElementById('auth-link-desktop'),
     document.getElementById('auth-link-mobile'),
@@ -327,17 +334,6 @@ const profileActive = pathname === '/profile';
       });
     } else if (countEl) {
       countEl.textContent = '0';
-    }
-  });
-
-  /* Scroll effect */
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      header.style.boxShadow = '0 2px 20px rgba(111,5,98,0.08)';
-      header.style.background = 'rgba(252,249,249,0.98)';
-    } else {
-      header.style.boxShadow = 'none';
-      header.style.background = 'rgba(252,249,249,0.95)';
     }
   });
 </script>

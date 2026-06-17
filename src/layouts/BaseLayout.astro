@@ -20,9 +20,27 @@ const {
     <meta name="description" content={description} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#6f0562" />
   </head>
   <body>
     <slot />
+
+    <!-- ── Push Notification Prompt ── -->
+    <div id="notif-prompt" style="display:none;">
+      <div class="np-ring">
+        <span class="material-symbols-outlined np-bell">notifications</span>
+        <span class="np-pulse"></span>
+      </div>
+      <div class="np-body">
+        <strong class="np-title">Never miss an offer</strong>
+        <span class="np-sub">Order updates &amp; exclusive deals, straight to you</span>
+      </div>
+      <div class="np-actions">
+        <button id="notif-allow" class="np-allow">Allow</button>
+        <button id="notif-later" class="np-later">Later</button>
+      </div>
+    </div>
 
     <!-- ── Floating App Download Banner ── -->
     <div id="app-dl-banner">
@@ -34,11 +52,12 @@ const {
 
       <div class="adb-text">
         <span class="adb-title">Download the Gladskin App</span>
-        <span class="adb-sub">Get up to <strong class="adb-off">20% OFF</strong> Forever</span>
+        <span class="adb-sub">Get up to <strong class="adb-off">20% OFF</strong> your first order</span>
       </div>
 
       <a href="https://onelink.to/ee6h6p" target="_blank" rel="noopener noreferrer" class="adb-cta">
-        Download Free
+        <span class="adb-long">Download Free</span>
+        <span class="adb-short">Get App</span>
         <span class="material-symbols-outlined">arrow_forward</span>
       </a>
     </div>
@@ -46,6 +65,80 @@ const {
 </html>
 
 <style>
+  /* ── Notification Prompt ── */
+  #notif-prompt {
+    position: fixed;
+    bottom: 1.75rem;
+    left: 1.5rem;
+    z-index: 85;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    border-radius: 1.25rem;
+    background: #fff;
+    box-shadow:
+      0 0 0 1px rgba(111,5,98,0.1),
+      0 8px 30px rgba(111,5,98,0.14),
+      0 2px 8px rgba(0,0,0,0.08);
+    max-width: 21rem;
+    animation: npIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes npIn {
+    from { opacity:0; transform:translateX(-1.5rem) scale(0.96); }
+    to   { opacity:1; transform:translateX(0) scale(1); }
+  }
+  .np-ring {
+    position: relative;
+    width: 2.75rem; height: 2.75rem;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .np-bell {
+    font-size: 1.4rem; color: var(--primary,#6f0562);
+    position: relative; z-index: 1;
+    animation: npRing 3s ease-in-out infinite 2s;
+  }
+  @keyframes npRing {
+    0%,100%{transform:rotate(0)}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(0)}
+  }
+  .np-pulse {
+    position: absolute; inset: 0; border-radius: 9999px;
+    background: rgba(111,5,98,0.08);
+    animation: npPulse 2s ease-out infinite;
+  }
+  @keyframes npPulse {
+    0%  { transform:scale(0.8); opacity:0.8; }
+    70% { transform:scale(1.45); opacity:0; }
+    100%{ transform:scale(1.45); opacity:0; }
+  }
+  .np-body { display:flex; flex-direction:column; gap:0.15rem; flex:1; min-width:0; }
+  .np-title { font-family:'Manrope',sans-serif; font-size:0.82rem; font-weight:800; color:#1a1a1c; display:block; }
+  .np-sub   { font-family:'Manrope',sans-serif; font-size:0.68rem; color:#7a6a74; line-height:1.4; display:block; }
+  .np-actions { display:flex; flex-direction:column; gap:0.35rem; flex-shrink:0; }
+  .np-allow {
+    padding: 0.42rem 1.1rem; border-radius: 9999px;
+    background: linear-gradient(130deg,#6f0562,#b70b68);
+    color:#fff; border:none; cursor:pointer;
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:0.68rem;
+    letter-spacing:0.08em; text-transform:uppercase;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .np-allow:hover { opacity:0.88; transform:scale(1.04); }
+  .np-later {
+    padding: 0.3rem 0.75rem; border-radius: 9999px;
+    background:none; border:1px solid rgba(111,5,98,0.2);
+    color:#9a8a94; cursor:pointer;
+    font-family:'Manrope',sans-serif; font-weight:600; font-size:0.62rem;
+    letter-spacing:0.06em; text-transform:uppercase;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .np-later:hover { border-color:rgba(111,5,98,0.4); color:#6f0562; }
+  @media (max-width:600px) {
+    #notif-prompt { bottom:5.25rem; left:0.75rem; right:0.75rem; max-width:none; }
+    .np-actions   { flex-direction:row; align-items:center; }
+  }
+
   /* ── Banner shell ── */
   #app-dl-banner {
     position: fixed;
@@ -69,9 +162,8 @@ const {
       0 2px 6px rgba(0, 0, 0, 0.3);
 
     animation: adbSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.2s both;
-    white-space: nowrap;
+    width: max-content;
     max-width: calc(100vw - 2rem);
-    overflow: hidden;
   }
 
   @keyframes adbSlideUp {
@@ -137,12 +229,14 @@ const {
     font-weight: 800;
     color: #fff;
     letter-spacing: 0.04em;
+    white-space: nowrap;
   }
   .adb-sub {
     font-family: 'Manrope', sans-serif;
     font-size: 0.68rem;
     font-weight: 500;
     color: rgba(255, 202, 235, 0.9);
+    white-space: nowrap;
   }
   .adb-off {
     color: #ffe259;
@@ -167,6 +261,7 @@ const {
     text-transform: uppercase;
     text-decoration: none;
     flex-shrink: 0;
+    white-space: nowrap;
     transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s;
     box-shadow: 0 2px 14px rgba(255, 255, 255, 0.25);
   }
@@ -176,28 +271,139 @@ const {
     box-shadow: 0 4px 20px rgba(255, 255, 255, 0.35);
   }
 
-  /* ── Mobile ── */
-  @media (max-width: 600px) {
+  /* Desktop: hide short label */
+  .adb-short { display: none; }
+
+  /* ── Mobile FAB: compact pill, bottom-right corner ── */
+  @media (max-width: 640px) {
     #app-dl-banner {
-      bottom: 5.25rem; /* sits above mobile bottom nav */
-      gap: 0.6rem;
-      padding: 0.6rem 0.75rem 0.6rem 0.65rem;
+      bottom: 5rem;
+      right: 1.25rem;
+      left: auto;
+      transform-origin: center;
+      width: auto;
+      border-radius: 9999px;
+      padding: 0.6rem 1rem 0.6rem 0.55rem;
+      gap: 0.45rem;
+      flex-wrap: nowrap;
+      align-items: center;
+      animation:
+        adbFabIn  0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both,
+        adbPing   2.5s ease-out                        3s   infinite;
     }
+    .adb-text { display: none; }
     .adb-icon {
       width: 2.1rem;
       height: 2.1rem;
+      flex-shrink: 0;
     }
-    .adb-title { font-size: 0.73rem; }
-    .adb-sub   { font-size: 0.62rem; }
-    .adb-cta   {
-      padding: 0.48rem 0.875rem;
-      font-size: 0.62rem;
+    .adb-cta {
+      background: transparent;
+      color: #fff;
+      box-shadow: none;
+      padding: 0;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      white-space: nowrap;
+    }
+    .adb-cta:hover { transform: none; box-shadow: none; }
+    .adb-cta .material-symbols-outlined { font-size: 0.85rem; }
+    .adb-long { display: none; }
+    .adb-short {
+      display: inline-block;
+      min-width: 6rem;
+      text-align: center;
+      transition: opacity 0.18s ease, transform 0.18s ease;
     }
   }
 
-  /* Very small — drop subtitle to fit */
-  @media (max-width: 380px) {
-    .adb-sub { display: none; }
-    .adb-icon { display: none; }
+  /* Soft ring-pulse every 2.5s — like a notification ping */
+  @keyframes adbPing {
+    0%   { box-shadow:
+             0 0 0 1.5px rgba(255,172,231,0.28),
+             0 8px 28px rgba(111,5,98,0.45),
+             0 0 0 0   rgba(183,11,104,0.55); }
+    60%  { box-shadow:
+             0 0 0 1.5px rgba(255,172,231,0.28),
+             0 8px 28px rgba(111,5,98,0.45),
+             0 0 0 14px rgba(183,11,104,0); }
+    100% { box-shadow:
+             0 0 0 1.5px rgba(255,172,231,0.28),
+             0 8px 28px rgba(111,5,98,0.45),
+             0 0 0 14px rgba(183,11,104,0); }
+  }
+
+  @keyframes adbFabIn {
+    from { opacity: 0; transform: translateY(2.5rem) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 </style>
+
+<script>
+  import { subscribeToAuth } from '../lib/auth';
+  import { requestAndRegister, syncPendingToken } from '../lib/push-notifications';
+
+  const SNOOZE_KEY = 'gladskin_notif_snooze';
+  const prompt     = document.getElementById('notif-prompt');
+  const btnAllow   = document.getElementById('notif-allow') as HTMLButtonElement | null;
+  const btnLater   = document.getElementById('notif-later') as HTMLButtonElement | null;
+
+  let uid: string | null = null;
+
+  const snoozed = () => {
+    const t = localStorage.getItem(SNOOZE_KEY);
+    return t ? Date.now() < Number(t) : false;
+  };
+
+  const snooze = (days: number) =>
+    localStorage.setItem(SNOOZE_KEY, String(Date.now() + days * 86_400_000));
+
+  function show() {
+    if (!prompt || typeof Notification === 'undefined') return;
+    if (Notification.permission !== 'default') return;
+    if (snoozed()) return;
+    prompt.style.display = 'flex';
+  }
+
+  function hide() {
+    if (prompt) prompt.style.display = 'none';
+  }
+
+  btnAllow?.addEventListener('click', async () => {
+    hide();
+    snooze(365);
+    await requestAndRegister(uid ?? undefined);
+  });
+
+  btnLater?.addEventListener('click', () => {
+    hide();
+    snooze(7);
+  });
+
+  setTimeout(show, 5000);
+
+  subscribeToAuth(user => {
+    uid = user?.uid ?? null;
+    if (user) syncPendingToken(user.uid).catch(() => {});
+  });
+</script>
+
+<script is:inline>
+  (function () {
+    if (window.innerWidth > 640) return;
+    var el = document.querySelector('.adb-short');
+    if (!el) return;
+    var msgs = ['Get App', '20% OFF', 'Free Download', 'Save 20%', 'Get App'];
+    var i = 0;
+    setInterval(function () {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(5px)';
+      setTimeout(function () {
+        i = (i + 1) % msgs.length;
+        el.textContent = msgs[i];
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, 180);
+    }, 2500);
+  })();
+</script>

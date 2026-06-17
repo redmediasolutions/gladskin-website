@@ -9,7 +9,6 @@ import {
   query,
   runTransaction,
   serverTimestamp,
-  setDoc,
   updateDoc,
   where,
   type Unsubscribe,
@@ -114,6 +113,7 @@ export function productToCartFields(product: Product): Omit<CartItemDoc, 'quanti
     packing: '',
     mrp: product.originalPrice ?? product.price,
     salePrice: product.price,
+    addedBy: 'user',
   };
 }
 

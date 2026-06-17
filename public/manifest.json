@@ -1,0 +1,13 @@
+{
+  "name": "Gladskin",
+  "short_name": "Gladskin",
+  "description": "Microbiome skincare for eczema-prone skin",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fcf9f9",
+  "theme_color": "#6f0562",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}
