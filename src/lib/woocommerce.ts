@@ -5,8 +5,8 @@ import type { Product } from '../types/index';
 // be imported from Astro frontmatter / API routes — never from a client <script>.
 
 const BASE_URL = import.meta.env.WOO_BASE_URL || 'https://store.gladskin.in';
-const CONSUMER_KEY = import.meta.env.WOO_CONSUMER_KEY || '';
-const CONSUMER_SECRET = import.meta.env.WOO_CONSUMER_SECRET || '';
+const CONSUMER_KEY = import.meta.env.WOO_CONSUMER_KEY || 'ck_1f90c93d45a4593f00f89ba5c942001e13898e09';
+const CONSUMER_SECRET = import.meta.env.WOO_CONSUMER_SECRET || 'cs_1c4ddd44c08c3399ecbca3e6e16f1234274ae392';
 
 const authHeader = 'Basic ' + btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`);
 
