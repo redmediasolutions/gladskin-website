@@ -93,6 +93,51 @@ const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID)
       </section>
     )}
 
+    <!-- Download App -->
+<section class="app-section">
+  <div class="app-inner">
+
+    <div class="app-content">
+      <span class="app-eyebrow">
+        Gladskin Mobile App
+      </span>
+
+      <h2 class="font-headline app-title">
+        Download the Gladskin App
+      </h2>
+
+      <p class="app-body">
+        Get up to <strong>20% OFF on every purchase, forever.</strong>
+        Enjoy exclusive app-only offers, faster checkout,
+        order tracking, wishlist, and early access to new products.
+      </p>
+
+      <div class="app-actions">
+        <a
+          href="https://onelink.to/ee6h6p"
+          class="app-btn"
+        >
+          Download App
+        </a>
+      </div>
+    </div>
+
+    <div class="app-qr">
+      <div class="qr-card">
+        <img
+          src="/download-qr-gladskin.jpg"
+          alt="Download Gladskin App"
+        />
+
+        <span>
+          Scan to download
+        </span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
     <!-- Why Gladskin -->
     <section class="why-section">
       <div class="why-inner">
@@ -126,7 +171,6 @@ const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID)
           <span class="why-eyebrow">Your Daily Ritual</span>
           <h2 class="font-headline ritual-title">A routine worth keeping.</h2>
           <p class="ritual-body">Simple, consistent steps that deliver visible results. Gladskin's skincare ritual is designed to fit into your day — morning or night — without overwhelm.</p>
-          <a href="/ritual" class="ritual-cta">Explore the Ritual</a>
         </div>
         <div class="ritual-steps">
           {[
@@ -366,6 +410,229 @@ const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID)
     font-size: 0.72rem;
     color: rgba(255,255,255,0.6);
   }
+
+  /* ─────────────────────────────
+   APP DOWNLOAD
+───────────────────────────── */
+
+.app-section {
+  padding: 6rem 0;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255,255,255,.12),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #4b003d 0%,
+      #6f0562 45%,
+      #8c2f67 100%
+    );
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.app-inner {
+  max-width: 80rem;
+
+  min-height: 480px;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    clamp(
+      1.5rem,
+      4vw,
+      3rem
+    );
+
+  display: grid;
+
+  grid-template-columns:
+    1.5fr
+    0.9fr;
+
+  gap: 3rem;
+
+  align-items: center;
+}
+.app-eyebrow {
+  display: block;
+
+  font-family: 'Manrope',
+    sans-serif;
+
+  font-size: 0.7rem;
+
+  font-weight: 800;
+
+  letter-spacing: 0.3em;
+
+  text-transform: uppercase;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.75
+  );
+
+  margin-bottom: 1rem;
+}
+
+.app-title {
+  color: white;
+
+  margin: 0 0 1rem;
+
+  line-height: 1.05;
+
+  font-size:
+    clamp(
+      2.75rem,
+      5vw,
+      4.5rem
+    );
+}
+
+.app-body {
+  font-family: 'Manrope',
+    sans-serif;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .82
+    );
+
+  font-size: 1.15rem;
+
+  line-height: 1.9;
+
+  max-width: 40rem;
+}
+
+.app-body strong {
+  color: white;
+}
+
+.app-actions {
+  margin-top: 2rem;
+}
+
+.app-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    1.15rem
+    2.5rem;
+
+  background: white;
+
+  color: var(--primary);
+
+  text-decoration: none;
+
+  border-radius: 999px;
+
+  font-family: 'Manrope',
+    sans-serif;
+
+  font-size: .95rem;
+
+  font-weight: 800;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+
+  transition: all .25s ease;
+}
+.app-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 24px
+    rgba(
+      0,
+      0,
+      0,
+      0.18
+    );
+}
+
+.app-qr {
+  display: none;
+}
+
+.qr-card {
+  background: white;
+
+  border-radius: 2rem;
+
+  padding: 1.5rem;
+
+  width: 320px;
+
+  margin-left: auto;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 50px
+    rgba(
+      0,
+      0,
+      0,
+      .22
+    );
+}
+
+.qr-card img {
+
+  width: 100%;
+
+  display: block;
+
+  border-radius: 1rem;
+
+}
+.qr-card span {
+  display: block;
+
+  margin-top: 1rem;
+
+  font-family: 'Manrope',
+    sans-serif;
+
+  font-size: .95rem;
+
+  font-weight: 700;
+
+  color: var(--primary);
+}
+
+@media (min-width: 1024px) {
+  .app-inner {
+    grid-template-columns:
+      1.5fr
+      0.8fr;
+  }
+
+  .app-qr {
+    display: block;
+  }
+}
 </style>
 
 <script>

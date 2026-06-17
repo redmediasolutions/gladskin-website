@@ -4,19 +4,49 @@ import type { Product } from '../types/index';
 // to the browser since they aren't prefixed with PUBLIC_). This module must only
 // be imported from Astro frontmatter / API routes — never from a client <script>.
 
-const BASE_URL = import.meta.env.WOO_BASE_URL || 'https://gs.redmediasolutions.in';
+const BASE_URL = import.meta.env.WOO_BASE_URL || 'https://store.gladskin.in';
 const CONSUMER_KEY = import.meta.env.WOO_CONSUMER_KEY || '';
 const CONSUMER_SECRET = import.meta.env.WOO_CONSUMER_SECRET || '';
 
 const authHeader = 'Basic ' + btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`);
 
-async function wooGet(path: string, params: Record<string, string> = {}): Promise<any> {
-  const url = new URL(`${BASE_URL}/wp-json/wc/v3/${path}`);
-  for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+async function wooGet(
+  path: string,
+  params: Record<string, string> = {}
+): Promise<any> {
 
-  const res = await fetch(url.toString(), { headers: { Authorization: authHeader } });
-  if (!res.ok) throw new Error(`WooCommerce API ${path} failed: ${res.status}`);
-  return res.json();
+  const url = new URL(
+    `${BASE_URL}/wp-json/wc/v3/${path}`
+  );
+
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+
+  console.log("================================");
+  console.log("Woo URL:", url.toString());
+
+  const res = await fetch(
+    url.toString(),
+    {
+      headers: {
+        Authorization: authHeader,
+      },
+    }
+  );
+
+  const body = await res.text();
+
+  console.log("Woo Status:", res.status);
+  console.log("Woo Body:", body);
+
+  if (!res.ok) {
+    throw new Error(
+      `WooCommerce API ${path} failed: ${res.status}\n${body}`
+    );
+  }
+
+  return JSON.parse(body);
 }
 
 function stripHtml(html: string | undefined | null): string {
@@ -52,60 +82,190 @@ function hasCategory(json: any, categoryId: number): boolean {
 }
 
 function mapWooProduct(json: any): Product {
-  const regular = parseFloat(json.regular_price || json.price || '0') || 0;
-  const sale = json.sale_price ? parseFloat(json.sale_price) || null : null;
-  const price = sale && sale > 0 ? sale : (parseFloat(json.price || '0') || regular);
-  const originalPrice = regular > price ? regular : undefined;
+  const regular =
+    parseFloat(
+      json.regular_price ||
+      json.price ||
+      '0',
+    ) || 0;
 
-  const image = json.images?.[0]?.src || FALLBACK_IMAGE;
-  const imageAlt = json.images?.[0]?.alt || json.name;
-  // Internal marker categories (app visibility / homepage row placement) are
-  // not real product types — skip them and use the first actual category,
-  // e.g. "Hair", "Face Wash". Falls back to a generic label if none remain.
-  const realCategory = (json.categories || []).find((c: any) => !INTERNAL_CATEGORY_IDS.has(c.id));
-  const category = realCategory?.name || 'Gladskin';
+  const sale =
+    json.sale_price
+      ? parseFloat(
+          json.sale_price,
+        ) || null
+      : null;
 
-  const composition = metaValue(json.meta_data, 'composition');
-  const howItWorks = metaValue(json.meta_data, 'how_does_it_work');
-  const sideEffects = metaValue(json.meta_data, 'side_effects');
+  const price =
+    sale && sale > 0
+      ? sale
+      : (parseFloat(
+          json.price || '0',
+        ) || regular);
 
-  // Mirrors glowfit ProductDetail.fromJson extractHighlights:
-  // WooCommerce stores up to 4 highlights via ACF with prefixes:
-  // highlights, highlights_copy, highlights_copy2, highlights_copy3
-  const metaMap: Record<string, any> = {};
-  for (const m of (json.meta_data || [])) metaMap[m.key] = m.value;
+  const originalPrice =
+    regular > price
+      ? regular
+      : undefined;
 
-  function parseHighlight(prefix: string) {
-    const title = stripHtml(metaMap[`${prefix}_title`]?.toString());
-    const desc  = stripHtml(metaMap[`${prefix}_description`]?.toString());
-    if (!title && !desc) return null;
-    const iconRaw = metaMap[`${prefix}_icon`];
-    const icon = (iconRaw && typeof iconRaw === 'object' && iconRaw.value && iconRaw.value !== '0')
-      ? String(iconRaw.value)
-      : (typeof iconRaw === 'string' && iconRaw && iconRaw !== '0' ? iconRaw : '');
-    return { icon, title: title || '', description: desc || '' };
+  const image =
+    json.images?.[0]?.src ||
+    FALLBACK_IMAGE;
+
+  const imageAlt =
+    json.images?.[0]?.alt ||
+    json.name;
+
+  // Find the first non-internal category
+  const realCategory =
+    (json.categories || []).find(
+      (c: any) =>
+        !INTERNAL_CATEGORY_IDS.has(
+          c.id,
+        ),
+    );
+
+  const category =
+    realCategory?.name ||
+    'Gladskin';
+
+  const categoryId =
+    realCategory?.id || 0;
+
+  const composition =
+    metaValue(
+      json.meta_data,
+      'composition',
+    );
+
+  const howItWorks =
+    metaValue(
+      json.meta_data,
+      'how_does_it_work',
+    );
+
+  const sideEffects =
+    metaValue(
+      json.meta_data,
+      'side_effects',
+    );
+
+  const metaMap: Record<
+    string,
+    any
+  > = {};
+
+  for (const m of (
+    json.meta_data || []
+  )) {
+    metaMap[m.key] = m.value;
   }
 
-  const highlights = ['highlights', 'highlights_copy', 'highlights_copy2', 'highlights_copy3']
+  function parseHighlight(
+    prefix: string,
+  ) {
+    const title =
+      stripHtml(
+        metaMap[
+          `${prefix}_title`
+        ]?.toString(),
+      );
+
+    const desc =
+      stripHtml(
+        metaMap[
+          `${prefix}_description`
+        ]?.toString(),
+      );
+
+    if (!title && !desc)
+      return null;
+
+    const iconRaw =
+      metaMap[
+        `${prefix}_icon`
+      ];
+
+    const icon =
+      iconRaw &&
+      typeof iconRaw ===
+        'object' &&
+      iconRaw.value &&
+      iconRaw.value !== '0'
+        ? String(
+            iconRaw.value,
+          )
+        : typeof iconRaw ===
+              'string' &&
+            iconRaw &&
+            iconRaw !== '0'
+          ? iconRaw
+          : '';
+
+    return {
+      icon,
+      title: title || '',
+      description:
+        desc || '',
+    };
+  }
+
+  const highlights = [
+    'highlights',
+    'highlights_copy',
+    'highlights_copy2',
+    'highlights_copy3',
+  ]
     .map(parseHighlight)
-    .filter(Boolean) as { icon: string; title: string; description: string }[];
+    .filter(
+      Boolean,
+    ) as {
+    icon: string;
+    title: string;
+    description: string;
+  }[];
 
   return {
     id: String(json.id),
+
     name: json.name,
+
+    category,
+    categoryId,
+
     price,
     originalPrice,
-    category,
-    badge: json.featured ? 'Bestseller' : undefined,
+
+    badge: json.featured
+      ? 'Bestseller'
+      : undefined,
+
     image,
     imageAlt,
+
     slug: json.slug,
-    description: stripHtml(json.short_description) || stripHtml(json.description) || undefined,
+
+    description:
+      stripHtml(
+        json.short_description,
+      ) ||
+      stripHtml(
+        json.description,
+      ) ||
+      undefined,
+
     composition,
     howItWorks,
     sideEffects,
-    inStock: json.stock_status === 'instock',
-    highlights: highlights.length > 0 ? highlights : undefined,
+
+    inStock:
+      json.stock_status ===
+      'instock',
+
+    highlights:
+      highlights.length > 0
+        ? highlights
+        : undefined,
   };
 }
 
@@ -165,21 +325,271 @@ export interface WooCategory {
 let cachedCategories: { at: number; data: WooCategory[] } | null = null;
 
 export async function fetchLiveCategories(): Promise<WooCategory[]> {
-  if (cachedCategories && Date.now() - cachedCategories.at < CACHE_MS) return cachedCategories.data;
-  // Includes subcategories (e.g. "Face Wash", "Female", "Hair Conditioner") —
-  // the mobile app's Remote Config "productcategories" list can reference any
-  // category ID regardless of its place in the WooCommerce hierarchy.
-  const raw = await wooGet('products/categories', {
-    hide_empty: 'true',
-    per_page: '100',
-    orderby: 'name',
-    order: 'asc',
-  });
-  const cats = (raw as any[])
-    .filter((c: any) => !INTERNAL_CATEGORY_IDS.has(c.id)) // exclude internal marker categories
-    .map((c: any): WooCategory => ({ id: c.id, name: c.name, slug: c.slug, count: c.count }));
-  cachedCategories = { at: Date.now(), data: cats };
+  if (
+    cachedCategories &&
+    Date.now() - cachedCategories.at < CACHE_MS
+  ) {
+    return cachedCategories.data;
+  }
+
+  const cats: WooCategory[] = [
+    {
+      id: 49,
+      name: 'All',
+      slug: 'all',
+      count: 0,
+    },
+    {
+      id: 45,
+      name: 'Skin',
+      slug: 'skin',
+      count: 0,
+    },
+    {
+      id: 46,
+      name: 'Hair',
+      slug: 'hair',
+      count: 0,
+    },
+    {
+      id: 47,
+      name: 'Hygiene',
+      slug: 'hygiene',
+      count: 0,
+    },
+  ];
+
+  cachedCategories = {
+    at: Date.now(),
+    data: cats,
+  };
+
   return cats;
+}
+
+const subCategoryCache = new Map<
+  number,
+  {
+    at: number;
+    data: WooCategory[];
+  }
+>();
+
+export async function fetchSubCategories(
+  parentId: number,
+): Promise<WooCategory[]> {
+  const cached =
+    subCategoryCache.get(
+      parentId,
+    );
+
+  if (
+    cached &&
+    Date.now() - cached.at <
+      CACHE_MS
+  ) {
+    return cached.data;
+  }
+
+  const raw = await wooGet(
+    'products/categories',
+    {
+      parent: String(parentId),
+      hide_empty: 'true',
+      per_page: '100',
+      orderby: 'name',
+      order: 'asc',
+    },
+  );
+
+  const categories = (raw as any[])
+    .map(
+      (
+        c: any,
+      ): WooCategory => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        count: c.count,
+      }),
+    );
+
+  console.log(
+    `Subcategories for ${parentId}:`,
+    categories,
+  );
+
+  subCategoryCache.set(
+    parentId,
+    {
+      at: Date.now(),
+      data: categories,
+    },
+  );
+
+  return categories;
+}
+
+export async function fetchCategoryById(
+
+  categoryId: number,
+
+) {
+
+  return await wooGet(
+
+    `products/categories/${categoryId}`,
+
+  );
+
+}
+
+export async function fetchProductsByCategory(
+  categoryId: number,
+): Promise<Product[]> {
+
+  const raw = await wooGet(
+    'products',
+    {
+      per_page: '100',
+      orderby: 'date',
+      order: 'desc',
+      status: 'publish',
+      category: String(
+        categoryId,
+      ),
+    },
+  );
+
+  return raw
+    .filter(
+      (p: any) =>
+        (!p.catalog_visibility ||
+          p.catalog_visibility !==
+            'hidden') &&
+        hasCategory(
+          p,
+          APP_VISIBLE_CATEGORY_ID,
+        ),
+    )
+    .map(mapWooProduct);
+}
+
+export async function fetchProductsPaginated({
+
+  page = 1,
+
+  perPage = 24,
+
+  categoryId,
+
+}: {
+
+  page?: number;
+
+  perPage?: number;
+
+  categoryId?: number;
+
+}): Promise<{
+
+  products: Product[];
+
+  totalProducts: number;
+
+  totalPages: number;
+
+  currentPage: number;
+
+}> {
+  const url = new URL(
+    `${BASE_URL}/wp-json/wc/v3/products`,
+  );
+
+  url.searchParams.set(
+    'page',
+    String(page),
+  );
+
+  url.searchParams.set(
+    'per_page',
+    String(perPage),
+  );
+
+  url.searchParams.set(
+    'orderby',
+    'date',
+  );
+
+  url.searchParams.set(
+    'order',
+    'desc',
+  );
+
+  url.searchParams.set(
+    'status',
+    'publish',
+  );
+
+  if (categoryId) {
+    url.searchParams.set(
+      'category',
+      String(categoryId),
+    );
+  }
+
+  const res = await fetch(
+    url.toString(),
+    {
+      headers: {
+        Authorization:
+          authHeader,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      `WooCommerce API failed: ${res.status}`,
+    );
+  }
+
+  const raw =
+    await res.json();
+
+  const totalProducts =
+    Number(
+      res.headers.get(
+        'X-WP-Total',
+      ),
+    ) || 0;
+
+  const totalPages =
+    Number(
+      res.headers.get(
+        'X-WP-TotalPages',
+      ),
+    ) || 1;
+
+  const products = raw
+    .filter(
+      (p: any) =>
+        (!p.catalog_visibility ||
+          p.catalog_visibility !==
+            'hidden') &&
+        hasCategory(
+          p,
+          APP_VISIBLE_CATEGORY_ID,
+        ),
+    )
+    .map(mapWooProduct);
+
+  return {
+    products,
+    totalProducts,
+    totalPages,
+    currentPage: page,
+  };
 }
 
 export async function fetchLiveProductBySlug(slug: string): Promise<Product | undefined> {

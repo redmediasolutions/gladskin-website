@@ -20,6 +20,7 @@ export interface Product {
   sideEffects?: string;
   highlights?: ProductHighlight[];
   inStock?: boolean;
+  categoryId: number;
 }
 
 export interface NavItem {
