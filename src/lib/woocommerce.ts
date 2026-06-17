@@ -10,6 +10,46 @@ const CONSUMER_SECRET = import.meta.env.WOO_CONSUMER_SECRET || '';
 
 const authHeader = 'Basic ' + btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`);
 
+console.log(
+
+  'BASE_URL:',
+
+  BASE_URL,
+
+);
+
+console.log(
+
+  'WOO KEY EXISTS:',
+
+  !!CONSUMER_KEY,
+
+);
+
+console.log(
+
+  'WOO SECRET EXISTS:',
+
+  !!CONSUMER_SECRET,
+
+);
+
+console.log(
+
+  'KEY LENGTH:',
+
+  CONSUMER_KEY.length,
+
+);
+
+console.log(
+
+  'SECRET LENGTH:',
+
+  CONSUMER_SECRET.length,
+
+);
+
 async function wooGet(
   path: string,
   params: Record<string, string> = {}
