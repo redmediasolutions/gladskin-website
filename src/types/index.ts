@@ -4,6 +4,8 @@ export interface ProductHighlight {
   description: string;
 }
 
+//TEST
+
 export interface Product {
   id: string;
   name: string;
