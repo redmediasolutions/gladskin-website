@@ -3,7 +3,6 @@ const pathname = Astro.url.pathname;
 const navLinks = [
   { label: 'Home',       href: '/',           active: pathname === '/' },
   { label: 'Collection', href: '/collection', active: pathname.startsWith('/collection') || pathname.startsWith('/products') },
-  { label: 'Ritual',     href: '/ritual',     active: pathname === '/ritual' },
 ];
 const profileActive = pathname === '/profile';
 ---
@@ -209,6 +208,56 @@ const profileActive = pathname === '/profile';
     50%     { background-position:100% 0; opacity:1; }
   }
 
+  /* ── App download button (header) ── */
+  .app-dl-btn {
+    display: none !important;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.42rem 0.875rem;
+    border-radius: 9999px;
+    background: linear-gradient(130deg, #6f0562, #b70b68);
+    color: #fff !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 10px rgba(111,5,98,0.3);
+  }
+
+  @media (min-width: 1024px) {
+
+  .app-dl-btn {
+
+    display: inline-flex !important;
+
+  }
+
+  }
+  .app-dl-btn:hover { opacity: 0.9; transform: scale(1.03); }
+
+  /* Mobile menu app download CTA */
+  .mobile-app-dl-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(130deg, #6f0562, #b70b68);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    justify-content: center;
+  }
+
   /* ── Desktop overrides ── */
   @media (min-width: 768px) {
     .main-header  { padding: 0 3rem; }
@@ -219,31 +268,46 @@ const profileActive = pathname === '/profile';
   }
 </style>
 
+<script is:inline>
+  (function () {
+    var btn  = document.getElementById('mobile-menu-btn');
+    var menu = document.getElementById('mobile-menu');
+    var icon = document.getElementById('hamburger-icon');
+    var hdr  = document.getElementById('main-header');
+
+    if (btn && menu && icon) {
+      btn.addEventListener('click', function () {
+        var isOpen = menu.classList.contains('open');
+        menu.classList.toggle('open');
+        icon.textContent = isOpen ? 'menu' : 'close';
+      });
+
+      menu.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          menu.classList.remove('open');
+          icon.textContent = 'menu';
+        });
+      });
+    }
+
+    if (hdr) {
+      window.addEventListener('scroll', function () {
+        if (window.scrollY > 50) {
+          hdr.style.boxShadow = '0 2px 20px rgba(111,5,98,0.08)';
+          hdr.style.background = 'rgba(252,249,249,0.98)';
+        } else {
+          hdr.style.boxShadow = 'none';
+          hdr.style.background = 'rgba(252,249,249,0.95)';
+        }
+      });
+    }
+  })();
+</script>
+
 <script>
   import { subscribeToAuth } from '../lib/auth';
   import { subscribeToCartCount } from '../lib/firestore-data';
 
-  const header  = document.getElementById('main-header')!;
-  const btn     = document.getElementById('mobile-menu-btn')!;
-  const menu    = document.getElementById('mobile-menu')!;
-  const icon    = document.getElementById('hamburger-icon')!;
-
-  /* Hamburger toggle — swaps icon and opens/closes menu */
-  btn.addEventListener('click', () => {
-    const isOpen = menu.classList.contains('open');
-    menu.classList.toggle('open');
-    icon.textContent = isOpen ? 'menu' : 'close';
-  });
-
-  /* Close menu on nav link click */
-  menu.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => {
-      menu.classList.remove('open');
-      icon.textContent = 'menu';
-    });
-  });
-
-  /* Toggle Sign In ↔ Profile and live cart badge based on auth state */
   const authLinks = [
     document.getElementById('auth-link-desktop'),
     document.getElementById('auth-link-mobile'),
@@ -270,17 +334,6 @@ const profileActive = pathname === '/profile';
       });
     } else if (countEl) {
       countEl.textContent = '0';
-    }
-  });
-
-  /* Scroll effect */
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      header.style.boxShadow = '0 2px 20px rgba(111,5,98,0.08)';
-      header.style.background = 'rgba(252,249,249,0.98)';
-    } else {
-      header.style.boxShadow = 'none';
-      header.style.background = 'rgba(252,249,249,0.95)';
     }
   });
 </script>

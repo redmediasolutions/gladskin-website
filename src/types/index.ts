@@ -4,6 +4,8 @@ export interface ProductHighlight {
   description: string;
 }
 
+//TEST
+
 export interface Product {
   id: string;
   name: string;
@@ -20,6 +22,7 @@ export interface Product {
   sideEffects?: string;
   highlights?: ProductHighlight[];
   inStock?: boolean;
+  categoryId: number;
 }
 
 export interface NavItem {

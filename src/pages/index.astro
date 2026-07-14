@@ -3,9 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProductCard from '../components/ProductCard.astro';
-import { getProducts } from '../data/products.ts';
+import { getProductsByCategory } from '../data/products.ts';
+import { HOMEPAGE_CATEGORY_ID, RECOMMENDED_CATEGORY_ID } from '../lib/woocommerce.ts';
 
-const products = await getProducts();
+const homepageProducts = await getProductsByCategory(HOMEPAGE_CATEGORY_ID);
+const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID);
 ---
 
 <BaseLayout>
@@ -47,25 +49,94 @@ const products = await getProducts();
       </div>
     </section>
 
-    <!-- Featured Collection -->
-    <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface-container-low);">
-      <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
-        <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
-          <div>
-            <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">The Curated Selection</span>
-            <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Seasonal Icons</h2>
+    <!-- Homepage Picks -->
+    {homepageProducts.length > 0 && (
+      <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface-container-low);">
+        <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
+          <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
+            <div>
+              <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">The Curated Selection</span>
+              <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Seasonal Icons</h2>
+            </div>
+            <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
+              View All <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
+            </a>
           </div>
-          <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
-            View All Atelier <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
-          </a>
+          <div class="products-grid">
+            {homepageProducts.map((product, i) => (
+              <ProductCard product={product} delay={i * 200} />
+            ))}
+          </div>
         </div>
-        <div class="products-grid">
-          {products.map((product, i) => (
-            <ProductCard product={product} delay={i * 200} />
-          ))}
+      </section>
+    )}
+
+    <!-- Recommended For You -->
+    {recommendedProducts.length > 0 && (
+      <section style="padding:clamp(3rem,8vw,8rem) 0; background:var(--surface);">
+        <div style="max-width:80rem; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);">
+          <div class="collection-header" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom:4rem;">
+            <div>
+              <span style="font-family:'Manrope',sans-serif; color:var(--secondary); letter-spacing:0.3em; text-transform:uppercase; font-size:0.7rem; font-weight:800; display:block; margin-bottom:1rem;">Just For You</span>
+              <h2 class="font-headline" style="font-size:clamp(2rem,4vw,3rem); color:var(--on-surface); margin:0;">Recommended</h2>
+            </div>
+            <a href="/collection" style="font-family:'Manrope',sans-serif; color:var(--primary); font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">
+              View All <span class="material-symbols-outlined" style="font-size:1.125rem;">arrow_forward</span>
+            </a>
+          </div>
+          <div class="products-grid">
+            {recommendedProducts.map((product, i) => (
+              <ProductCard product={product} delay={i * 200} />
+            ))}
+          </div>
         </div>
+      </section>
+    )}
+
+    <!-- Download App -->
+<section class="app-section">
+  <div class="app-inner">
+
+    <div class="app-content">
+      <span class="app-eyebrow">
+        Gladskin Mobile App
+      </span>
+
+      <h2 class="font-headline app-title">
+        Download the Gladskin App
+      </h2>
+
+      <p class="app-body">
+        Get up to <strong>20% OFF on your first order.</strong>
+        Exclusive app-only offers, faster checkout,
+        order tracking, and early access to new products.
+      </p>
+
+      <div class="app-actions">
+        <a
+          href="https://onelink.to/ee6h6p"
+          class="app-btn"
+        >
+          Download App
+        </a>
       </div>
-    </section>
+    </div>
+
+    <div class="app-qr">
+      <div class="qr-card">
+        <img
+          src="/download-qr-gladskin.jpg"
+          alt="Download Gladskin App"
+        />
+
+        <span>
+          Scan to download
+        </span>
+      </div>
+    </div>
+
+  </div>
+</section>
 
     <!-- Why Gladskin -->
     <section class="why-section">
@@ -100,7 +171,6 @@ const products = await getProducts();
           <span class="why-eyebrow">Your Daily Ritual</span>
           <h2 class="font-headline ritual-title">A routine worth keeping.</h2>
           <p class="ritual-body">Simple, consistent steps that deliver visible results. Gladskin's skincare ritual is designed to fit into your day — morning or night — without overwhelm.</p>
-          <a href="/ritual" class="ritual-cta">Explore the Ritual</a>
         </div>
         <div class="ritual-steps">
           {[
@@ -353,6 +423,224 @@ const products = await getProducts();
     font-size: 0.72rem;
     color: rgba(255,255,255,0.6);
   }
+
+  /* ─────────────────────────────
+   APP DOWNLOAD
+───────────────────────────── */
+
+.app-section {
+  padding: 3rem 0;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255,255,255,.12),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #4b003d 0%,
+      #6f0562 45%,
+      #8c2f67 100%
+    );
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.app-inner {
+  max-width: 80rem;
+
+  min-height: auto;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    clamp(
+      1.5rem,
+      4vw,
+      3rem
+    );
+
+  display: grid;
+
+  grid-template-columns:
+    1.5fr
+    0.9fr;
+
+  gap: 2rem;
+
+  align-items: center;
+}
+.app-eyebrow {
+  display: block;
+
+  font-family: 'Manrope',
+    sans-serif;
+
+  font-size: 0.7rem;
+
+  font-weight: 800;
+
+  letter-spacing: 0.3em;
+
+  text-transform: uppercase;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.75
+  );
+
+  margin-bottom: 1rem;
+}
+
+.app-title {
+  color: white;
+
+  margin: 0 0 1rem;
+
+  line-height: 1.05;
+
+  font-size:
+    clamp(
+      1.6rem,
+      3vw,
+      2.25rem
+    );
+}
+
+.app-body {
+  font-family: 'Manrope',
+    sans-serif;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .82
+    );
+
+  font-size: 0.95rem;
+
+  line-height: 1.6;
+
+  max-width: 40rem;
+}
+
+.app-body strong {
+  color: white;
+}
+
+.app-actions {
+  margin-top: 1.25rem;
+}
+
+.app-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    0.75rem
+    1.75rem;
+
+  background: white;
+
+  color: var(--primary);
+
+  text-decoration: none;
+
+  border-radius: 999px;
+
+  font-family: 'Manrope',
+    sans-serif;
+
+  font-size: .8rem;
+
+  font-weight: 800;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+
+  transition: all .25s ease;
+}
+.app-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 24px
+    rgba(
+      0,
+      0,
+      0,
+      0.18
+    );
+}
+
+.app-qr {
+  display: flex;
+  justify-content: center;
+}
+
+.qr-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 1rem;
+  width: 160px;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .22);
+}
+
+.qr-card img {
+  width: 100%;
+  display: block;
+  border-radius: 0.75rem;
+}
+
+.qr-card span {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Mobile: single column, centred */
+@media (max-width: 767px) {
+  .app-inner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  .app-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .app-body {
+    max-width: 26rem;
+  }
+  .qr-card {
+    width: 140px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-inner {
+    grid-template-columns: 1.5fr 0.8fr;
+  }
+  .qr-card {
+    width: 220px;
+  }
+}
 </style>
 
 <script>

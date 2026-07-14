@@ -44,6 +44,9 @@ const discountPercent = product.originalPrice && product.originalPrice > product
         <span class="price-was">₹{product.originalPrice.toFixed(0)}</span>
       )}
     </div>
+    {discountPercent !== null && product.originalPrice && (
+      <p class="price-save">You save ₹{(product.originalPrice - product.price).toFixed(0)}</p>
+    )}
   </div>
 
   <!-- Stretched link makes the whole card clickable -->
@@ -240,5 +243,12 @@ const discountPercent = product.originalPrice && product.originalPrice > product
     font-size: 0.72rem;
     color: #9a8a94;
     text-decoration: line-through;
+  }
+  .price-save {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #B34E6F;
+    margin: 0.1rem 0 0;
   }
 </style>

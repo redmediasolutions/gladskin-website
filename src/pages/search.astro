@@ -2,10 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getProducts } from '../data/products.ts';
-
-const products = await getProducts();
-const productsJson = JSON.stringify(products);
 ---
 
 <BaseLayout title="Search | Gladskin">
@@ -33,6 +29,12 @@ const productsJson = JSON.stringify(products);
       <!-- Result count -->
       <p id="result-count" style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); text-align:center; margin:0 0 2rem; display:none;"></p>
 
+      <!-- Loading state -->
+      <div id="loading-state" style="display:none; text-align:center; padding:4rem 0;">
+        <div class="spinner"></div>
+        <p style="font-family:'Manrope',sans-serif; color:var(--on-surface-variant); font-size:0.9rem; margin:1rem 0 0;">Searching…</p>
+      </div>
+
       <!-- Empty / initial state -->
       <div id="empty-state" style="text-align:center; padding:4rem 0;">
         <span class="material-symbols-outlined" style="font-size:4rem; color:var(--outline-variant); display:block; margin-bottom:1rem;">search</span>
@@ -58,80 +60,170 @@ const productsJson = JSON.stringify(products);
   @media (min-width:480px)  { .search-grid { grid-template-columns: repeat(2,1fr); } }
   @media (min-width:900px)  { .search-grid { grid-template-columns: repeat(3,1fr); } }
   @media (min-width:1200px) { .search-grid { grid-template-columns: repeat(4,1fr); } }
+
+  .spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 2.5px solid var(--outline-variant);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 
-<script define:vars={{ productsJson }}>
-  const ALL_PRODUCTS = JSON.parse(productsJson);
+<script>
+  const ALGOLIA_APP_ID  = 'U50GIUJMNN';
+  const ALGOLIA_API_KEY = 'cfc0d2e5c91c0de8a315463fe219b236';
+  const ALGOLIA_INDEX   = 'products';
+  const ALGOLIA_URL     = `https://${ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes/${ALGOLIA_INDEX}/query`;
 
-  const input      = document.getElementById('search-input');
-  const clearBtn   = document.getElementById('clear-btn');
-  const resultCount= document.getElementById('result-count');
-  const emptyState = document.getElementById('empty-state');
-  const noResults  = document.getElementById('no-results');
-  const noTerm     = document.getElementById('no-results-term');
-  const grid       = document.getElementById('results-grid');
+  const input        = document.getElementById('search-input') as HTMLInputElement;
+  const clearBtn     = document.getElementById('clear-btn')!;
+  const resultCount  = document.getElementById('result-count')!;
+  const emptyState   = document.getElementById('empty-state')!;
+  const loadingState = document.getElementById('loading-state')!;
+  const noResults    = document.getElementById('no-results')!;
+  const noTerm       = document.getElementById('no-results-term')!;
+  const grid         = document.getElementById('results-grid')!;
 
-  function highlight(text, query) {
-    if (!query) return text;
-    const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function slugify(name: string) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  function parsePrice(v: unknown): number {
+    if (v === null || v === undefined || v === '') return 0;
+    if (typeof v === 'number') return v;
+    return parseFloat(String(v)) || 0;
+  }
+
+  function highlight(text: string, query: string) {
+    if (!query || !text) return text || '';
+    const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     return text.replace(re, '<mark style="background:rgba(111,5,98,0.12);color:var(--primary);border-radius:2px;padding:0 1px;">$1</mark>');
   }
 
-  function renderCard(p, query) {
+  function renderCard(hit: Record<string, unknown>, query: string) {
+    // Image: flat string field or first element of images array
+    let image = '';
+    if (typeof hit.image === 'string' && hit.image) {
+      image = hit.image;
+    } else if (Array.isArray(hit.images) && hit.images.length > 0) {
+      const first = hit.images[0];
+      image = typeof first === 'string' ? first : ((first as Record<string, string>)?.src || '');
+    }
+
+    // Prices — match GlowFit product_model.dart field priority
+    const originalPrice = parsePrice(hit.regular_price ?? hit.regularPrice ?? hit.mrp ?? hit.price);
+    const salePrice     = parsePrice(hit.sale_price ?? hit.salePrice ?? hit.price) || originalPrice;
+    const hasDiscount   = salePrice > 0 && originalPrice > 0 && salePrice < originalPrice;
+    const discountPct   = hasDiscount ? Math.round(((originalPrice - salePrice) / originalPrice) * 100) : 0;
+    const displayPrice  = salePrice || originalPrice;
+
+    // Category — string or array of {name} objects
+    let category = '';
+    if (typeof hit.categories === 'string') {
+      category = hit.categories;
+    } else if (Array.isArray(hit.categories) && hit.categories.length > 0) {
+      const first = hit.categories[0];
+      category = typeof first === 'string' ? first : ((first as Record<string, string>)?.name || '');
+    }
+
+    // Slug — use Algolia field if present, otherwise derive from name
+    const slug = (hit.slug as string) || (hit.post_name as string) || slugify((hit.name as string) || '');
+    const href = `/products/${slug}`;
+
+    const inStock = ((hit.stock_status as string) ?? 'instock') === 'instock';
+    const name    = (hit.name as string) || '';
+
     return `
-      <a href="/products/${p.slug}" style="text-decoration:none; display:flex; flex-direction:column;">
+      <a href="${href}" style="text-decoration:none; display:flex; flex-direction:column;">
         <div style="aspect-ratio:3/4; border-radius:0.75rem; overflow:hidden; background:var(--surface-container); margin-bottom:1rem; position:relative;">
-          <img src="${p.image}" alt="${p.imageAlt}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.5s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform=''" loading="lazy" />
-          ${p.badge ? `<span style="position:absolute;top:0.75rem;right:0.75rem;background:#c9f089;color:#121f00;padding:0.2rem 0.6rem;border-radius:9999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;font-family:'Manrope',sans-serif;">${p.badge}</span>` : ''}
-          ${!p.inStock ? `<div style="position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Manrope',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--on-surface-variant);">Out of Stock</span></div>` : ''}
+          ${image
+            ? `<img src="${image}" alt="${name}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.5s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform=''" loading="lazy" />`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:3rem;color:var(--outline-variant);">image_not_supported</span></div>`
+          }
+          ${hasDiscount ? `<span style="position:absolute;top:0.6rem;left:0.6rem;background:#1a1a1a;color:#fff;padding:0.18rem 0.55rem;border-radius:9999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;font-family:'Manrope',sans-serif;line-height:1.6;">${discountPct}% OFF</span>` : ''}
+          ${!inStock ? `<div style="position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Manrope',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--on-surface-variant);">Out of Stock</span></div>` : ''}
         </div>
-        <h3 style="font-family:'Noto Serif',serif; font-size:1.25rem; color:var(--on-surface); margin:0 0 0.4rem; font-weight:400;">${highlight(p.name, query)}</h3>
-        <span style="display:inline-block;background:rgba(201,240,137,0.3);color:var(--on-tertiary-fixed-variant);padding:0.15rem 0.5rem;border-radius:9999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;font-family:'Manrope',sans-serif;margin-bottom:0.75rem;">${highlight(p.category, query)}</span>
+        <h3 style="font-family:'Noto Serif',serif; font-size:1.25rem; color:var(--on-surface); margin:0 0 0.4rem; font-weight:400;">${highlight(name, query)}</h3>
+        ${category ? `<span style="display:inline-block;background:rgba(201,240,137,0.3);color:var(--on-tertiary-fixed-variant);padding:0.15rem 0.5rem;border-radius:9999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;font-family:'Manrope',sans-serif;margin-bottom:0.75rem;">${highlight(category, query)}</span>` : ''}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
-          <span style="font-family:'Manrope',sans-serif;font-size:1rem;color:var(--on-surface-variant);">₹${p.price.toFixed(2)}</span>
+          <div style="display:flex;align-items:baseline;gap:0.4rem;">
+            <span style="font-family:'Manrope',sans-serif;font-size:1rem;font-weight:700;color:var(--primary);">₹${displayPrice.toFixed(0)}</span>
+            ${hasDiscount ? `<span style="font-family:'Manrope',sans-serif;font-size:0.78rem;color:#9a8a94;text-decoration:line-through;">₹${originalPrice.toFixed(0)}</span>` : ''}
+          </div>
           <span style="font-family:'Manrope',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--primary);border-bottom:1px solid transparent;padding-bottom:2px;" onmouseover="this.style.borderBottomColor='var(--primary)'" onmouseout="this.style.borderBottomColor='transparent'">View Detail</span>
         </div>
       </a>
     `;
   }
 
-  function doSearch(query) {
-    const q = query.trim().toLowerCase();
+  async function doSearch(query: string) {
+    const q = query.trim();
     clearBtn.style.display = q ? 'block' : 'none';
 
     if (!q) {
-      emptyState.style.display = 'block';
-      noResults.style.display  = 'none';
-      grid.style.display       = 'none';
-      resultCount.style.display= 'none';
+      emptyState.style.display   = 'block';
+      loadingState.style.display = 'none';
+      noResults.style.display    = 'none';
+      grid.style.display         = 'none';
+      resultCount.style.display  = 'none';
       return;
     }
 
-    const results = ALL_PRODUCTS.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      (p.description || '').toLowerCase().includes(q) ||
-      (p.composition || '').toLowerCase().includes(q)
-    );
+    emptyState.style.display   = 'none';
+    loadingState.style.display = 'block';
+    noResults.style.display    = 'none';
+    grid.style.display         = 'none';
+    resultCount.style.display  = 'none';
 
-    emptyState.style.display = 'none';
+    try {
+      const res = await fetch(ALGOLIA_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Algolia-Application-Id': ALGOLIA_APP_ID,
+          'X-Algolia-API-Key': ALGOLIA_API_KEY,
+        },
+        body: JSON.stringify({ query: q, hitsPerPage: 20 }),
+      });
 
-    if (results.length === 0) {
-      noResults.style.display  = 'block';
-      grid.style.display       = 'none';
-      resultCount.style.display= 'none';
-      noTerm.textContent       = query;
-      return;
+      if (!res.ok) throw new Error(`Algolia ${res.status}`);
+
+      const data = await res.json();
+      const hits: Record<string, unknown>[] = data.hits || [];
+
+      loadingState.style.display = 'none';
+
+      if (hits.length === 0) {
+        noResults.style.display = 'block';
+        noTerm.textContent      = query;
+        return;
+      }
+
+      grid.style.display        = '';
+      resultCount.style.display = 'block';
+      resultCount.textContent   = `${hits.length} result${hits.length > 1 ? 's' : ''} for "${query}"`;
+      grid.innerHTML            = hits.map(h => renderCard(h, q)).join('');
+
+    } catch (err) {
+      console.error('Algolia search error:', err);
+      loadingState.style.display = 'none';
+      noResults.style.display    = 'block';
+      noTerm.textContent         = query;
     }
-
-    noResults.style.display  = 'none';
-    grid.style.display       = '';
-    resultCount.style.display= 'block';
-    resultCount.textContent  = `${results.length} result${results.length > 1 ? 's' : ''} for "${query}"`;
-    grid.innerHTML           = results.map(p => renderCard(p, q)).join('');
   }
 
-  input.addEventListener('input', e => doSearch(e.target.value));
+  function scheduleSearch(query: string) {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => doSearch(query), 350);
+  }
+
+  input.addEventListener('input', e => scheduleSearch((e.target as HTMLInputElement).value));
   clearBtn.addEventListener('click', () => { input.value = ''; doSearch(''); input.focus(); });
 
   // Pre-fill from URL query param
