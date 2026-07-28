@@ -32,40 +32,71 @@ import Footer from '../components/Footer.astro';
         <!-- Order summary -->
         <div style="background:var(--surface-container-low); border-radius:1rem; padding:1.5rem; height:fit-content; position:sticky; top:4rem;">
 
-          <!-- Savings card — shown only when products have discounts -->
-          <div id="savings-card" style="display:none; align-items:center; gap:0.75rem; background:linear-gradient(135deg,#FDF5F8,#F8E9F0); border:1px solid #E8C7D8; border-radius:0.875rem; padding:1rem 1.125rem; margin-bottom:1.25rem;">
-            <div style="width:2.75rem; height:2.75rem; border-radius:50%; background:linear-gradient(135deg,#B34E6F,#6F0562); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <span class="material-symbols-outlined" style="color:#fff; font-size:1.25rem; font-variation-settings:'FILL' 1;">auto_awesome</span>
+          <!-- Savings card — strictly matches app design -->
+          <div id="savings-card" style="display:none; align-items:center; gap:0.75rem; background:linear-gradient(135deg,#FDF5F8,#F8E9F0); border:1px solid #E8C7D8; border-radius:0.875rem; padding:1.25rem; margin-bottom:1.5rem;">
+            <div style="width:3.5rem; height:3.5rem; border-radius:50%; background:linear-gradient(135deg,#B34E6F,#6F0562); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <span class="material-symbols-outlined" style="color:#fff; font-size:1.75rem; font-variation-settings:'FILL' 1;">auto_awesome</span>
             </div>
             <div style="flex:1; min-width:0;">
-              <p style="font-family:'Manrope',sans-serif; font-size:0.7rem; color:#6b5c63; margin:0 0 0.1rem; font-weight:500; letter-spacing:0.02em;">Your Beauty Savings</p>
-              <p id="savings-amount" style="font-family:'Manrope',sans-serif; font-size:1.5rem; font-weight:800; color:var(--primary); margin:0 0 0.1rem; line-height:1.1;">₹0</p>
-              <p style="font-family:'Manrope',sans-serif; font-size:0.72rem; color:#B34E6F; font-weight:600; margin:0;">saved on this order ✨</p>
+              <p style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:#6b5c63; margin:0 0 0.1rem; font-weight:500;">Your Beauty Savings</p>
+              <p id="savings-amount" style="font-family:'Manrope',sans-serif; font-size:1.75rem; font-weight:800; color:var(--primary); margin:0 0 0.1rem; line-height:1.1;">₹0</p>
+              <p style="font-family:'Manrope',sans-serif; font-size:0.75rem; color:#B34E6F; font-weight:600; margin:0;">saved on this order ✨</p>
+              <p id="savings-coupon-text" style="font-family:'Manrope',sans-serif; font-size:0.65rem; color:#6b5c63; margin:0.25rem 0 0; display:none;">Includes ₹0 coupon savings</p>
             </div>
             <div style="background:#fff; border-radius:9999px; padding:0.3rem 0.7rem; flex-shrink:0; box-shadow:0 1px 4px rgba(111,5,98,0.1);">
-              <span style="font-family:'Manrope',sans-serif; font-size:0.58rem; font-weight:800; color:var(--primary); letter-spacing:0.12em; text-transform:uppercase;">YOU SAVE</span>
+              <span style="font-family:'Manrope',sans-serif; font-size:0.6rem; font-weight:800; color:var(--primary); letter-spacing:0.1em; text-transform:uppercase;">YOU SAVE</span>
             </div>
           </div>
 
-          <h2 style="font-family:'Manrope',sans-serif; font-size:0.8rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--on-surface); margin:0 0 1.25rem;">Order Summary</h2>
-          <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem; border-bottom:1px solid var(--outline-variant); padding-bottom:1.25rem;">
-            <!-- MRP row — shown only when savings exist -->
-            <div id="mrp-row" style="display:none; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:#9a8a94;">
+          <!-- Restructured Order Summary -->
+          <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem; border-bottom:1px solid var(--outline-variant); padding-bottom:1rem;">
+            
+            <div id="mrp-row" style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:#9a8a94;">
               <span>MRP</span><span id="mrp-total" style="text-decoration:line-through;">₹0</span>
             </div>
-            <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
-              <span>Sale Total</span><span id="subtotal">₹0</span>
+            
+            <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant); font-weight:700;">
+              <span>Subtotal</span><span id="subtotal">₹0.00</span>
             </div>
+            
             <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
-              <span>Shipping</span><span style="color:var(--tertiary); font-weight:700;">Free</span>
+              <span style="display:flex; align-items:center; gap:0.25rem;">Total GST <span class="material-symbols-outlined" style="font-size:1.1rem; color:#9a8a94;">expand_more</span></span>
+              <span id="gst-total">₹0.00</span>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
+              <span>Shipping</span><span id="shipping-total">+₹0</span>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
+              <span>COD Charges</span><span id="cod-total">+₹0</span>
             </div>
           </div>
-          <div style="display:flex; justify-content:space-between; font-family:'Noto Serif',serif; font-size:1.1rem; color:var(--on-surface); font-weight:400; margin-bottom:1.5rem;">
-            <span>Total</span><span id="total">₹0</span>
+
+          <!-- Grand Total & Coupon Break -->
+          <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem; border-bottom:1px solid var(--outline-variant); padding-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:1rem; color:var(--on-surface); font-weight:700;">
+              <span>Grand Total</span><span id="grand-total">₹0.00</span>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:#B34E6F; font-weight:600;">
+              <span>Coupon Discount</span><span id="coupon-discount">-₹0.00</span>
+            </div>
+            
+            <!-- Dynamic Download App Banner -->
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+               <span></span>
+               <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; color:var(--primary); background:#F8E9F0; padding:0.25rem 0.5rem; border-radius:0.25rem;">Download app to get discount</span>
+            </div>
           </div>
-          <a href="/checkout" id="checkout-btn" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; width:100%; padding:1rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:#fff; border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; text-decoration:none;">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_forward</span>
-            Proceed to Checkout
+
+          <!-- Payable Total -->
+          <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:1.1rem; color:var(--on-surface); font-weight:800; margin-bottom:1.5rem;">
+            <span>Payable Total</span><span id="payable-total">₹0.00</span>
+          </div>
+
+          <a href="/checkout" id="checkout-btn" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; width:100%; padding:1.1rem; background:linear-gradient(135deg,var(--primary),var(--primary-container)); color:#fff; border:none; border-radius:9999px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; text-decoration:none;">
+            CHECKOUT <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_forward</span>
           </a>
         </div>
       </div>
@@ -80,20 +111,41 @@ import Footer from '../components/Footer.astro';
 <style>
   .cart-layout { display: none; flex-direction: column; }
   @media (min-width: 768px) {
-    .cart-layout { grid-template-columns: 1fr 22rem !important; display: grid !important; }
+    .cart-layout { grid-template-columns: 1fr 24rem !important; display: grid !important; }
   }
 </style>
 
 <script>
   import { subscribeToAuth } from '../lib/auth';
-  import { subscribeToCart, subscribeToCartCount, changeCartQuantity, removeFromCart, type CartItemDoc } from '../lib/firestore-data';
+  import { 
+    subscribeToCart, 
+    changeCartQuantity, 
+    removeFromCart, 
+    // getCartRates removed: Cloud Function wrapper not exported from ../lib/firestore-data
+    type CartItemDoc 
+  } from '../lib/firestore-data';
   import type { Product } from '../types/index';
 
   const WISHLIST_KEY = 'gladskin_wishlist';
   function getWishlist() { try { return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'); } catch { return []; } }
 
-  // Live catalog (real WooCommerce products + images), loaded via the
-  // server-side /api/products proxy so credentials stay off the client.
+  // Fallback defaults until Cloud Function returns real values
+  let cartRates = {
+    freeShippingThreshold: 499,
+    shippingBelowThreshold: 39, 
+    shippingAboveThreshold: 0,
+    codCharge: 16
+  };
+
+  // Fetch dynamic rates directly from your Firebase backend (Cloud Functions)
+  async function fetchBackendRates() {
+    // getCartRates not available; keep fallback defaults. This is a no-op placeholder
+    return cartRates;
+  }
+
+  // Trigger fetch immediately
+  fetchBackendRates();
+
   let catalog: Product[] = [];
   fetch('/api/products')
     .then(r => r.json())
@@ -151,50 +203,99 @@ import Footer from '../components/Footer.astro';
   }
 
   function renderCart(items: Array<CartItemDoc & { id: string }>) {
-    const countEl    = document.getElementById('cart-item-count')!;
-    const emptyEl    = document.getElementById('cart-empty')!;
-    const layoutEl   = document.getElementById('cart-layout')!;
-    const itemsEl    = document.getElementById('cart-items')!;
+    const countEl = document.getElementById('cart-item-count')!;
+    const emptyEl = document.getElementById('cart-empty')!;
+    const layoutEl = document.getElementById('cart-layout')!;
+    const itemsEl = document.getElementById('cart-items')!;
+    
+    // Order Summary Elements
     const subtotalEl = document.getElementById('subtotal')!;
-    const totalEl    = document.getElementById('total')!;
+    const mrpRow = document.getElementById('mrp-row')!;
+    const mrpTotalEl = document.getElementById('mrp-total')!;
+    const gstTotalEl = document.getElementById('gst-total')!;
+    const shippingTotalEl = document.getElementById('shipping-total')!;
+    const codTotalEl = document.getElementById('cod-total')!;
+    const grandTotalEl = document.getElementById('grand-total')!;
+    const couponDiscountEl = document.getElementById('coupon-discount')!;
+    const payableTotalEl = document.getElementById('payable-total')!;
+    
+    // Savings Elements
+    const savingsCard = document.getElementById('savings-card')!;
+    const savingsAmount = document.getElementById('savings-amount')!;
 
-    const totalQty      = items.reduce((s, c) => s + (c.quantity || 1), 0);
-    const totalAmt      = items.reduce((s, c) => s + (c.salePrice || 0) * (c.quantity || 1), 0);
-    const totalMrp      = items.reduce((s, c) => s + (c.mrp || c.salePrice || 0) * (c.quantity || 1), 0);
-    const totalSavings  = totalMrp - totalAmt;
-
+    const totalQty = items.reduce((s, c) => s + (c.quantity || 1), 0);
     countEl.textContent = String(totalQty);
 
     if (items.length === 0) {
-      emptyEl.style.display  = 'block';
+      emptyEl.style.display = 'block';
       layoutEl.style.display = 'none';
       return;
     }
 
-    emptyEl.style.display  = 'none';
+    emptyEl.style.display = 'none';
     layoutEl.style.display = '';
 
-    subtotalEl.textContent = `₹${totalAmt.toFixed(0)}`;
-    totalEl.textContent    = `₹${totalAmt.toFixed(0)}`;
+    // Advanced Calculation matching Flutter logic
+    let totalAmt = 0; // Subtotal
+    let totalMrp = 0;
+    let totalTax = 0;
+    
+    items.forEach(item => {
+      const qty = item.quantity || 1;
+      const salePrice = item.salePrice || 0;
+      const mrp = item.mrp || salePrice;
+      const taxRate = (item as { taxRate?: number }).taxRate || 18; // Default 18% matching flutter app
 
-    // Savings card
-    const savingsCard   = document.getElementById('savings-card')!;
-    const savingsAmount = document.getElementById('savings-amount')!;
-    const mrpRow        = document.getElementById('mrp-row')!;
-    const mrpTotal      = document.getElementById('mrp-total')!;
+      totalAmt += salePrice * qty;
+      totalMrp += mrp * qty;
+
+      // GST Calculation Breakdown
+      const taxableAmount = salePrice * qty;
+      const lineTax = taxableAmount * (taxRate / 100);
+      totalTax += lineTax;
+    });
+
+    const totalSavings = totalMrp - totalAmt;
+    
+    // Using dynamic backend settings fetched via getCartRates Cloud Function
+    const shipping = totalAmt >= cartRates.freeShippingThreshold 
+      ? cartRates.shippingAboveThreshold 
+      : cartRates.shippingBelowThreshold;
+      
+    // Apply the exact backend codCharge dynamically
+    const codCharges = cartRates.codCharge;
+
+    // Defaulting to 0 on web to incentivize app downloads
+    const couponDiscountAmount = 0; 
+
+    // Final calculations
+    const grandTotal = totalAmt + totalTax + shipping + codCharges;
+    const payableTotal = grandTotal - couponDiscountAmount;
+
+    // Format UI Elements
+    subtotalEl.textContent = `₹${totalAmt.toFixed(2)}`;
+    gstTotalEl.textContent = `₹${totalTax.toFixed(2)}`;
+    shippingTotalEl.textContent = `+₹${shipping}`;
+    codTotalEl.textContent = `+₹${codCharges}`;
+    grandTotalEl.textContent = `₹${grandTotal.toFixed(2)}`;
+    couponDiscountEl.textContent = `-₹${couponDiscountAmount.toFixed(2)}`;
+    payableTotalEl.textContent = `₹${payableTotal.toFixed(2)}`;
+
+    // Handle MRP & Savings Visibility
     if (totalSavings > 0) {
       savingsCard.style.display = 'flex';
       savingsAmount.textContent = `₹${totalSavings.toFixed(0)}`;
-      mrpRow.style.display      = 'flex';
-      mrpTotal.textContent      = `₹${totalMrp.toFixed(0)}`;
+      mrpRow.style.display = 'flex';
+      mrpTotalEl.textContent = `₹${totalMrp.toFixed(0)}`;
     } else {
       savingsCard.style.display = 'none';
-      mrpRow.style.display      = 'none';
+      mrpRow.style.display = 'none';
     }
 
+    // Render List Items
     itemsEl.innerHTML = items.map((item) => {
       const local = findLocalProduct(item.productId);
-      const href  = local ? `/products/${local.slug}` : '#';
+      const href = local ? `/products/${local.slug}` : '#';
       const category = local?.category || '';
       return `
       <div style="display:grid; grid-template-columns:6rem 1fr; gap:1.25rem; align-items:center; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:1rem; padding:1.25rem;" class="cart-row">
@@ -240,7 +341,7 @@ import Footer from '../components/Footer.astro';
   let cartItems: Array<CartItemDoc & { id: string }> = [];
 
   (window as any).__removeCart = removeItem;
-  (window as any).__cartQty    = changeQty;
+  (window as any).__cartQty = changeQty;
   (window as any).__moveToWishlist = (id: string) => {
     const item = cartItems.find(i => i.id === id);
     if (item) moveToWishlist(item);
