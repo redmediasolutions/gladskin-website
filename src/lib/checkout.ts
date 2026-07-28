@@ -4,7 +4,7 @@ import { functions } from './firebase-client';
 // Thin wrappers around the existing Cloud Functions used by the glowfit app's
 // checkout flow (getCartRates, createSecureOrder, finalizeOrder). We don't
 // reimplement any pricing/order logic here — the server is the source of truth.
-
+// TEST
 export interface CartRates {
   freeShippingThreshold: number;
   shippingBelowThreshold: number;
