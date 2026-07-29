@@ -108,13 +108,14 @@ import Footer from '../components/Footer.astro';
               <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
                 <span>Subtotal</span><span id="co-subtotal">₹0</span>
               </div>
+               <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
+                <span>GST</span><span id="co-tax">₹0</span>
+              </div>
               <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
                 <span>Shipping</span>
                 <span id="co-shipping" style="font-weight:600;"></span>
               </div>
-              <div style="display:flex; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
-                <span>Tax</span><span id="co-tax">₹0</span>
-              </div>
+             
               <div id="co-codcharge-row" style="display:none; justify-content:space-between; font-family:'Manrope',sans-serif; font-size:0.875rem; color:var(--on-surface-variant);">
                 <span>COD Charge</span><span id="co-codcharge">₹0</span>
               </div>
@@ -301,30 +302,50 @@ import Footer from '../components/Footer.astro';
   }
 
   function renderTotals() {
-    const subtotal = cartItems.reduce((s, c) => s + (c.salePrice || 0) * (c.quantity || 1), 0);
-    const r = rates;
-    const freeShipThreshold = r?.freeShippingThreshold ?? 499;
-    const shipping = subtotal <= freeShipThreshold ? (r?.shippingBelowThreshold ?? 49) : (r?.shippingAboveThreshold ?? 0);
-    const tax = subtotal * (r?.taxPercentage ?? 0.05);
-    const codCharge = paymentMethod === 'cod' ? (r?.codCharge ?? 0) : 0;
-    const total = subtotal + shipping + tax + codCharge;
+    let subtotal = 0;
+    let totalTax = 0;
+
+    // Per-item GST Tax calculation identical to the Cart page
+    cartItems.forEach(item => {
+      const qty = item.quantity || 1;
+      const salePrice = item.salePrice || 0;
+      const taxRate = (item as { taxRate?: number }).taxRate || 18;
+
+      const taxableAmount = salePrice * qty;
+      const lineTax = taxableAmount * (taxRate / 100);
+
+      subtotal += taxableAmount;
+      totalTax += lineTax;
+    });
+
+    const freeShipThreshold = rates?.freeShippingThreshold ?? 499;
+    const shipping = subtotal >= freeShipThreshold 
+      ? (rates?.shippingAboveThreshold ?? 0) 
+      : (rates?.shippingBelowThreshold ?? 39);
+
+    const codCharge = paymentMethod === 'cod' ? (rates?.codCharge ?? 16) : 0;
+    const total = subtotal + totalTax + shipping + codCharge;
 
     document.getElementById('co-subtotal')!.textContent = `₹${subtotal.toFixed(2)}`;
+    
     const shipEl = document.getElementById('co-shipping')!;
-    shipEl.textContent = shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`;
+    shipEl.textContent = shipping === 0 ? 'FREE' : `+₹${shipping.toFixed(2)}`;
     (shipEl as HTMLElement).style.color = shipping === 0 ? 'var(--tertiary)' : 'var(--on-surface-variant)';
-    document.getElementById('co-tax')!.textContent = `₹${tax.toFixed(2)}`;
+    
+    // Updated line-item GST output
+    document.getElementById('co-tax')!.textContent = `₹${totalTax.toFixed(2)}`;
 
     const codRow = document.getElementById('co-codcharge-row')!;
     if (codCharge > 0) {
       codRow.style.display = 'flex';
-      document.getElementById('co-codcharge')!.textContent = `₹${codCharge.toFixed(2)}`;
+      document.getElementById('co-codcharge')!.textContent = `+₹${codCharge.toFixed(2)}`;
     } else {
       codRow.style.display = 'none';
     }
 
     document.getElementById('co-total')!.textContent = `₹${total.toFixed(2)}`;
 
+    // Free Shipping Progress Bar Updates
     const bar  = document.getElementById('free-shipping-bar')!;
     const prog = document.getElementById('shipping-progress')!;
     const tip  = document.getElementById('shipping-tip')!;
