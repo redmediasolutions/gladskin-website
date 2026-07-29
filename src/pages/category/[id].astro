@@ -54,7 +54,7 @@ if (
 
 const products =
   categoryId === 49
-    ? await getProducts()
+    ? await fetchProductsByCategory(49)
     : await fetchProductsByCategory(
         categoryId,
       );

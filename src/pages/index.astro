@@ -262,10 +262,22 @@ const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID)
   .hero-text  { animation: slideLeft  0.85s cubic-bezier(0.22,1,0.36,1) both; }
   .hero-image { animation: slideRight 0.85s cubic-bezier(0.22,1,0.36,1) 0.15s both; }
   /* ── Products grid ── */
-  .products-grid { display:grid; grid-template-columns:1fr; gap:1.5rem; }
+  .products-grid { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); /* Changed from 1fr to repeat(2, 1fr) */
+    gap: 1rem; /* Reduced gap slightly to better fit mobile screens */
+  }
+  
   @media (min-width: 768px) {
-    .collection-header { flex-direction:row !important; align-items:flex-end !important; justify-content:space-between !important; }
-    .products-grid { grid-template-columns: repeat(3,1fr); }
+    .collection-header { 
+      flex-direction: row !important; 
+      align-items: flex-end !important; 
+      justify-content: space-between !important; 
+    }
+    .products-grid { 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 1.5rem; /* Restored the original gap for larger screens */
+    }
   }
 
   /* ── Why Gladskin ── */
