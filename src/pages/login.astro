@@ -9,12 +9,12 @@ import Footer from '../components/Footer.astro';
   <main style="padding-top:3.25rem; min-height:100vh; background:var(--surface); display:flex; align-items:center; justify-content:center;">
     <div style="width:100%; max-width:26rem; margin:0 auto; padding:3rem clamp(1.25rem,4vw,3rem);">
       <h1 class="font-headline" style="font-size:clamp(1.75rem,3vw,2.25rem); color:var(--on-surface); margin:0 0 0.5rem; text-align:center;">Sign In</h1>
-      <p style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); text-align:center; margin:0 0 2rem;">Use your phone number to sign in or create an account.</p>
+      <p style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:var(--on-surface-variant); text-align:center; margin:0 0 2rem;">Use your WhatsApp number to sign in or create an account.</p>
 
       <!-- Step 1: phone -->
       <div id="step-phone" style="display:flex; flex-direction:column; gap:1rem;">
         <div class="lfield">
-          <label class="llabel">Mobile Number</label>
+          <label class="llabel">Enter WhatsApp Number</label>
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span style="font-family:'Manrope',sans-serif; font-size:0.9rem; color:var(--on-surface-variant); padding:0.7rem 0;">+91</span>
             <input id="l-phone" type="tel" class="linput" placeholder="10-digit mobile number" maxlength="10" />
@@ -26,7 +26,7 @@ import Footer from '../components/Footer.astro';
       <!-- Step 2: otp -->
       <div id="step-otp" style="display:none; flex-direction:column; gap:1rem;">
         <p style="font-family:'Manrope',sans-serif; font-size:0.8rem; color:var(--on-surface-variant); margin:0;">
-          Enter the 4-digit code sent to <span id="otp-phone-display" style="color:var(--on-surface); font-weight:700;"></span>
+          Enter the 4-digit code sent to WhatsApp:<span id="otp-phone-display" style="color:var(--on-surface); font-weight:700;"></span>
         </p>
         <div class="lfield">
           <label class="llabel">OTP</label>
