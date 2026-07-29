@@ -84,10 +84,12 @@ import Footer from '../components/Footer.astro';
             </div>
             
             <!-- Dynamic Download App Banner -->
+            <a href="https://onelink.to/ee6h6p">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                <span></span>
-               <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; color:var(--primary); background:#F8E9F0; padding:0.25rem 0.5rem; border-radius:0.25rem;">Download app to get discount</span>
+               <span style="font-family:'Manrope',sans-serif; font-size:0.7rem; font-weight:700; color:var(--primary); background:#F8E9F0; padding:0.25rem 0.5rem; border-radius:0.25rem;">Download app to get upto 20% discount</span>
             </div>
+            </a>
           </div>
 
           <!-- Payable Total -->
@@ -109,9 +111,20 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <style>
-  .cart-layout { display: none; flex-direction: column; }
+  /* Flexbox fallback layout for mobile */
+  .cart-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  /* Grid layout for desktop screens */
   @media (min-width: 768px) {
-    .cart-layout { grid-template-columns: 1fr 24rem !important; display: grid !important; }
+    .cart-layout {
+      display: grid;
+      grid-template-columns: 1fr 24rem;
+      gap: 2rem;
+    }
   }
 </style>
 
