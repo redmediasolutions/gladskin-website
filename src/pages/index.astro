@@ -13,6 +13,15 @@ const recommendedProducts = await getProductsByCategory(RECOMMENDED_CATEGORY_ID)
 <BaseLayout>
   <Header />
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BNFB23334L"></script>
+<script>
+  (window as any)['dataLayer'] = (window as any)['dataLayer'] || [];
+  function gtag(p0?: string, p1?: any, p2?: any){ (window as any)['dataLayer'].push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-BNFB23334L');
+</script>
+
   <main>
     <!-- Hero — full viewport height, image fills right column -->
     <section class="hero-section" style="background:var(--surface); overflow:hidden;">

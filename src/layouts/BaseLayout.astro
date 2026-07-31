@@ -26,6 +26,16 @@ const {
   <body>
     <slot />
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BNFB23334L"></script>
+<script>
+  (window as any)['dataLayer'] = (window as any)['dataLayer'] || [];
+  function gtag(p0?: string, p1?: any, p2?: any){ (window as any)['dataLayer'].push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-BNFB23334L');
+</script>
+
+
     <!-- ── Push Notification Prompt ── -->
     <div id="notif-prompt" style="display:none;">
       <div class="np-ring">
