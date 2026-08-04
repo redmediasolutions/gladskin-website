@@ -93,11 +93,18 @@ const discountPercent = product.originalPrice && product.originalPrice > product
             </div>
           </div>
 
-          <button id="add-to-cart" class="pd-btn-primary" data-product-id={product.id}>
-            <span class="material-symbols-outlined">shopping_bag</span>
-            Add to Bag
-          </button>
-
+          <button
+  id="add-to-cart"
+  class="pd-btn-primary"
+  data-product-id={product.id}
+  disabled={product.inStock === false}
+  aria-disabled={product.inStock === false}
+>
+  <span class="material-symbols-outlined">
+    {product.inStock === false ? 'block' : 'shopping_bag'}
+  </span>
+  {product.inStock === false ? 'Out of Stock' : 'Add to Bag'}
+</button>
           <button
             id="add-to-wishlist"
             class="pd-btn-secondary"
