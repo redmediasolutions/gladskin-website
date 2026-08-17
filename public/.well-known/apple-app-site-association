@@ -1,0 +1,33 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "UJ83Z99K68.com.rd.gladskin"
+        ],
+        "components": [
+          {
+            "/": "/products/*",
+            "comment": "Products"
+          },
+          {
+            "/": "/category/*",
+            "comment": "Categories"
+          },
+          {
+            "/": "/cart/*",
+            "comment": "Cart"
+          },
+          {
+            "/": "/loyalty/*",
+            "comment": "Loyalty"
+          },
+          {
+            "/": "/orders/*",
+            "comment": "Orders"
+          }
+        ]
+      }
+    ]
+  }
+}
